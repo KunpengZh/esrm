@@ -1,4 +1,5 @@
 import CookieManager from "react-native-cookies";
+import Toast from 'react-native-root-toast';
 
 var AppUtils = (function () {
     /**
@@ -103,13 +104,13 @@ var AppUtils = (function () {
             }).then((response) => response.json()).then((responseJson) => {
                 if (responseJson.isAuthenticated) {
                     _updateUserProfile(responseJson);
-                    reslove(true);
+                    reslove({ isAuthenticated: true, message: '' });
                 } else {
-                    rej(responseJson.message);
+                    reslove({ isAuthenticated: false, message: responseJson.message });
                 }
             }).catch((error) => {
                 console.error(error);
-                rej("Unable to connect with Server")
+                reslove({ isAuthenticated: false, message: "Unable to connect with Server" })
             });
         })
     }
@@ -130,6 +131,7 @@ var AppUtils = (function () {
                         }
                     }).catch((error) => {
                         console.error(error);
+                        showToast(error);
                         reslove(false);
                     });
             }
@@ -142,8 +144,49 @@ var AppUtils = (function () {
             return true;
         }).catch((err) => {
             console.log(err);
+            showToast(err);
             return false;
         })
+    }
+
+    /**
+     * To show a toast
+     */
+
+    var showToast = function (message, duration = "SHORT", position = Toast.positions.BOTTOM) {
+
+        let durationDuration = Toast.durations.SHORT;
+        switch (duration.toUpperCase()) {
+            case 'LONG':
+                durationDuration = Toast.durations.LONG;
+                break;
+            case 'SHORT':
+                durationDuration = Toast.durations.LONG;
+                break;
+        }
+
+
+
+        let toast = Toast.show(message, {
+            duration: durationDuration,
+            position: position,
+            shadow: true,
+            animation: true,
+            hideOnPress: true,
+            delay: 0,
+            // onShow: () => {
+            //     // calls on toast\`s appear animation start
+            // },
+            // onShown: () => {
+            //     // calls on toast\`s appear animation end.
+            // },
+            // onHide: () => {
+            //     // calls on toast\`s hide animation start.
+            // },
+            // onHidden: () => {
+            //     // calls on toast\`s hide animation end.
+            // }
+        });
     }
 
 
@@ -163,7 +206,8 @@ var AppUtils = (function () {
         setAppServerURL: setAppServerURL,
         appLogin: AppLogin,
         AppForceLogout: AppForceLogout,
-        isUserLoggedIn: isUserLoggedIn
+        isUserLoggedIn: isUserLoggedIn,
+        showToast: showToast
     }
 
 })()

@@ -1,32 +1,17 @@
 import React, { Component } from 'react';
 import {
     View,
-    Text,
     ActivityIndicator,
     Modal,
-    StyleSheet,
-    Button
+    StyleSheet
 } from 'react-native';
 
-import AppUtils from '../../Share/AppUtils'
-
 export default class Loading extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
-            modalVisible: true,
+            modalVisible: props.showLoading
         };
-        AppUtils.isUserLoggedIn().then((isUserLoggedIn) => {
-            this.hideLoading();
-            if (isUserLoggedIn) {
-                this.props.navigation.navigate('MainNavigate')
-            } else {
-                this.props.navigation.navigate('Login')
-            }
-        }).catch((err) => {
-            this.hideLoading()
-        })
     }
     hideLoading() {
         this.setState({ modalVisible: false });
@@ -40,9 +25,7 @@ export default class Loading extends Component {
             </Modal>
         );
     }
-
 }
-
 const styles = StyleSheet.create({
     loadingBox: {
         flex: 1,

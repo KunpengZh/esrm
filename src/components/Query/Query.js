@@ -8,7 +8,7 @@ import {
     StyleSheet
 } from 'react-native';
 
-import { StackNavigator, TabNavigator, DrawerNavigator } from 'react-navigation';
+import { StackNavigator } from 'react-navigation';
 
 class MyHomeScreen extends React.Component {
     static navigationOptions = {

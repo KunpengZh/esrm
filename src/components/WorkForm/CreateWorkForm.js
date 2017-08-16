@@ -6,13 +6,11 @@ import {
 } from 'react-native';
 import AppUtils from '../../Share/AppUtils'
 export default class RecentChatsScreen extends React.Component {
-    doLogout(){
-        AppUtils.AppForceLogout();
-    }
+    
     render() {
         return (
             <View>
-                <Button title="logout" onPress={this.doLogout.bind(this)} />
+                <Text>The new Work Form screen</Text>
             </View>
         )
     }

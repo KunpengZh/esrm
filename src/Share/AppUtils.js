@@ -165,8 +165,6 @@ var AppUtils = (function () {
                 break;
         }
 
-
-
         let toast = Toast.show(message, {
             duration: durationDuration,
             position: position,
@@ -189,6 +187,22 @@ var AppUtils = (function () {
         });
     }
 
+    var getOpenWorkForms = function () {
+        return new Promise(function (resolve, reject) {
+            if (appUser.isAuthenticated) {
+                fetch(appServerURL + 'workformapi/getr').then((response) => response.json()).then((responseJson) => {
+                    console.log(responseJson);
+                    resolve({ status: true, message: '', data: responseJson })
+                }).catch((err) => {
+                    resolve({ status: false, message: "Network request failed", data: [] })
+                })
+            } else {
+                resolve({ status: false, message: 'User Not Logged In', data: [] })
+            }
+
+        })
+    }
+
 
 
     /**
@@ -207,7 +221,8 @@ var AppUtils = (function () {
         appLogin: AppLogin,
         AppForceLogout: AppForceLogout,
         isUserLoggedIn: isUserLoggedIn,
-        showToast: showToast
+        showToast: showToast,
+        getOpenWorkForms:getOpenWorkForms
     }
 
 })()

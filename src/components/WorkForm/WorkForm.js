@@ -12,6 +12,7 @@ import { StackNavigator } from 'react-navigation';
 import CreateWorkForm from './CreateWorkForm'
 import CreateUrgentWorkForm from './CreateUrgentWorkForm'
 import AppUtils from '../../Share/AppUtils'
+import WorkFformList from './WorkFormList'
 
 class WorkFormHome extends React.Component {
     static navigationOptions = {
@@ -19,22 +20,35 @@ class WorkFormHome extends React.Component {
     };
     constructor(props) {
         super(props)
+        this.state = {
+            workFormsList: []
+        }
+        AppUtils.getOpenWorkForms().then((res) => {
+            if (res.status) {
+                for(let i=0;i<res.data.length;i++){
+                    res.data[i]['key']=res.data[i]['requestId']
+                }
+                this.setState({ workFormsList: res.data })
+            } else {
+                AppUtils.showToast(res.message)
+            }
+        })
     }
     render() {
         return (
             <View style={styles.container}>
                 <View style={styles.topContainer} >
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('CreateWorkForm')}>
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('CreateWorkForm')}>
                         <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />
                         <Text>新建派工</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>this.props.navigation.navigate('CreateUrgentWorkForm')}>
+                    <TouchableOpacity onPress={() => this.props.navigation.navigate('CreateUrgentWorkForm')}>
                         <Image style={styles.actionLogo} source={require('../../images/icon_urgent.png')} />
                         <Text>紧急派工</Text>
                     </TouchableOpacity>
                 </View>
                 <View style={styles.bottomContainer}>
-
+                <WorkFformList data={this.state.workFormsList} />
                 </View>
             </View>
         )
@@ -44,7 +58,7 @@ class WorkFormHome extends React.Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 5
+        // padding: 0
     },
     topContainer: {
         flex: 1,
@@ -57,8 +71,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: "space-between",
         borderWidth: 1,
-        borderColor: '#C2DFFF'
-        //borderColor: '#D1D0C1'
+        //borderColor: '#C2DFFF'
+        // borderColor:'#E5E4E2'
+        borderColor: '#D1D0C1'
     },
     actionLogo: {
         width: 60,
@@ -96,8 +111,8 @@ export default StackNavigator({
             headerTitleStyle: styles.headerTitleStyle
         }),
     },
-    CreateUrgentWorkForm:{
-        screen:CreateUrgentWorkForm,
+    CreateUrgentWorkForm: {
+        screen: CreateUrgentWorkForm,
         navigationOptions: ({ navigation }) => ({
             headerTitle: 'Create Urgent WorkForm',
             headerStyle: styles.headerStyle,

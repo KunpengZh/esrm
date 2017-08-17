@@ -5,7 +5,7 @@ import {
     Image
 } from 'react-native';
 
-import {TabNavigator } from 'react-navigation';
+import { TabNavigator } from 'react-navigation';
 
 import WorkForm from '../WorkForm/WorkForm'
 import Query from '../Query/Query'

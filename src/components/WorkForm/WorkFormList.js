@@ -1,20 +1,22 @@
 import React, { Component } from 'react';
-import { FlatList, StyleSheet, Text, View, Image } from 'react-native';
+import { FlatList, StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
-export default class FlatListBasics extends Component {
+export default class FlatListBasics extends React.PureComponent {
     constructor(props) {
-        super(props)
+        super(props);
         this.state = {
-            data: props.data
+            data: props.data,
         }
     }
+    _onPressItem = (id) => {
+        this.props.onPressItem(id);
+    }
+    _keyExtractor = (item, index) => item.requestId;
     componentWillReceiveProps(newProps) {
-        console.log("to setup data")
         this.setState({ data: newProps.data });
     }
     sepa() {
-        console.log("separater");
-        return (<View style={{ height: 1, backgroundColor: '#D1D0CE' }}></View>)
+        return (<View style={{ height: 1, backgroundColor: '#D1D0CE', marginLeft:5, marginRight:5}}></View>)
     }
     render() {
         return (
@@ -22,9 +24,13 @@ export default class FlatListBasics extends Component {
                 <FlatList
                     ItemSeparatorComponent={this.sepa}
                     data={this.state.data}
+                    //extraData={this.state}
+                    keyExtractor={this._keyExtractor}
                     renderItem={({ item }) => {
                         return (
-                            <WorkForm data={item} />
+                            <WorkForm data={item}
+                                onPressItem={this._onPressItem}
+                            />
                         )
                     }}
                 />
@@ -33,11 +39,12 @@ export default class FlatListBasics extends Component {
     }
 }
 class WorkForm extends React.Component {
+    _onPress = () => {
+        this.props.onPressItem(this.props.data.requestId);
+    };
     render() {
-        console.log("render");
-        console.log(this.props)
         return (
-            <View style={styles.WFItemContainer}>
+            <TouchableOpacity style={styles.WFItemContainer} onPress={this._onPress}>
                 <Image source={require('../../images/document.png')} style={styles.WFItemLogo} />
                 <View style={styles.WFItemBody} >
                     <View style={styles.WFItemRow}>
@@ -58,24 +65,24 @@ class WorkForm extends React.Component {
                     </View>
 
                 </View>
-            </View>
+            </TouchableOpacity>
         );
     }
 }
 
 const styles = StyleSheet.create({
-    WFItemContent:{
+    WFItemContent: {
         fontSize: 10,
-        width:120
+        width: 120
     },
-    WFItemLabel:{
-        width:50,
-        paddingRight:5,
+    WFItemLabel: {
+        width: 50,
+        paddingRight: 5,
         fontSize: 10,
         //fontWeight:'500'
     },
-    WFItemRow:{
-        flex:1,
+    WFItemRow: {
+        flex: 1,
         flexDirection: 'row',
         justifyContent: "flex-start",
         alignItems: 'center',
@@ -86,8 +93,8 @@ const styles = StyleSheet.create({
     },
     WFItemContainer: {
         padding: 5,
-        paddingTop:10,
-        paddingBottom:10,
+        paddingTop: 10,
+        paddingBottom: 10,
         flex: 1,
         height: 90,
         flexDirection: 'row',

@@ -15,9 +15,9 @@ import AppUtils from '../../Share/AppUtils'
 import WorkFformList from './WorkFormList'
 
 class WorkFormHome extends React.Component {
-    static navigationOptions = {
-        drawerLabel: 'Home',
-    };
+    // static navigationOptions = {
+    //     drawerLabel: 'Home',
+    // };
     constructor(props) {
         super(props)
         this.state = {
@@ -25,15 +25,26 @@ class WorkFormHome extends React.Component {
         }
         AppUtils.getOpenWorkForms().then((res) => {
             if (res.status) {
-                for(let i=0;i<res.data.length;i++){
-                    res.data[i]['key']=res.data[i]['requestId']
-                }
                 this.setState({ workFormsList: res.data })
             } else {
                 AppUtils.showToast(res.message)
             }
         })
     }
+    _onPressItem = (id) => {
+        let workForm = {};
+        let find = false;
+        for (let i = 0; i < this.state.workFormsList.length; i++) {
+            if (this.state.workFormsList[i].requestId === id) {
+                workForm = this.state.workFormsList[i];
+                find = true;
+                break;
+            }
+        }
+        if (find) {
+            this.props.navigation.navigate('OpenWorkForm', { workFormData: workForm });
+        }
+    };
     render() {
         return (
             <View style={styles.container}>
@@ -48,7 +59,7 @@ class WorkFormHome extends React.Component {
                     </TouchableOpacity>
                 </View>
                 <View style={styles.bottomContainer}>
-                <WorkFformList data={this.state.workFormsList} />
+                    <WorkFformList data={this.state.workFormsList} onPressItem={this._onPressItem} />
                 </View>
             </View>
         )
@@ -90,7 +101,8 @@ const styles = StyleSheet.create({
         height: 30,
     },
     headerTitleStyle: {
-        fontSize: 12, // 文字大小
+        color:'#15317E',
+        tintColor:'#15317E'
     }
 
 })
@@ -98,25 +110,37 @@ export default StackNavigator({
     WorkFormHome: {
         screen: WorkFormHome,
         navigationOptions: ({ navigation }) => ({
-            headerTitle: 'My Work Forms',
-            headerStyle: styles.headerStyle,
-            headerTitleStyle: styles.headerTitleStyle
+            // headerTitle: 'My Work Forms',
+            // headerStyle: styles.headerStyle,
+           // headerTitleStyle: styles.headerTitleStyle
         }),
     },
     CreateWorkForm: {
         screen: CreateWorkForm,
         navigationOptions: ({ navigation }) => ({
-            headerTitle: 'Create New WorkForm',
-            headerStyle: styles.headerStyle,
-            headerTitleStyle: styles.headerTitleStyle
+
+            //headerTitle: 'Create New WorkForm',
+            // headerStyle: styles.headerStyle,
+             //headerTitleStyle: styles.headerTitleStyle
         }),
     },
     CreateUrgentWorkForm: {
         screen: CreateUrgentWorkForm,
         navigationOptions: ({ navigation }) => ({
-            headerTitle: 'Create Urgent WorkForm',
-            headerStyle: styles.headerStyle,
-            headerTitleStyle: styles.headerTitleStyle
+            // headerTitle: 'Create Urgent WorkForm',
+            // headerStyle: styles.headerStyle,
+            // headerTitleStyle: styles.headerTitleStyle
+        })
+    },
+    OpenWorkForm: {
+        screen: CreateWorkForm,
+        navigationOptions: ({ navigation }) => ({
+            //headerTitle: 'WorkForm - ',
+            
+            // headerStyle: styles.headerStyle,
+             //headerTitleStyle: styles.headerTitleStyle
         })
     }
-})
+}, {
+        headerMode: "none",
+    })

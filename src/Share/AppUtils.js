@@ -66,7 +66,46 @@ var AppUtils = (function () {
         configDoc[key] = value;
     }
     var getConfigItem = function (key) {
+        console.log(configDoc);
         return configDoc[key];
+    }
+
+    var loadingConfigData = function () {
+        return new Promise(function (resolve, reject) {
+            fetch(appServerURL + 'esrvapi/getallconfigdoc')
+                .then((response) => response.json()).then((jsonRes) => {
+                    for (let i = 0; i < jsonRes.length; i++) {
+                        let category = jsonRes[i].category;
+                        switch (category) {
+                            case 'companySource':
+                                configDoc.companySource = jsonRes[i].data;
+                                break;
+                            case 'companyAdmin':
+                                configDoc.companyAdmin = jsonRes[i].data;
+                                break;
+                            case 'companyEmployee':
+                                configDoc.companyEmployee = jsonRes[i].data;
+                                break;
+                            case 'workItem':
+                                configDoc.workItem = jsonRes[i].data;
+                                break;
+                            case 'workCategory':
+                                configDoc.workCategory = jsonRes[i].data;
+                                break;
+                            case 'spareParts':
+                                configDoc.spareParts = jsonRes[i].data;
+                                break;
+                            case 'securityTools':
+                                configDoc.securityTools = jsonRes[i].data;
+                                break;
+                        }
+                    }
+                    resolve({ status: true, message: '' });
+                }).catch((error) => {
+                    console.error(error);
+                    reslove({ status: false, message: "Unable to load config data from Server" })
+                });
+        })
     }
 
     /**
@@ -191,7 +230,7 @@ var AppUtils = (function () {
         return new Promise(function (resolve, reject) {
             if (appUser.isAuthenticated) {
                 fetch(appServerURL + 'workformapi/getr').then((response) => response.json()).then((responseJson) => {
-                    console.log(responseJson);
+
                     resolve({ status: true, message: '', data: responseJson })
                 }).catch((err) => {
                     resolve({ status: false, message: "Network request failed", data: [] })
@@ -222,7 +261,8 @@ var AppUtils = (function () {
         AppForceLogout: AppForceLogout,
         isUserLoggedIn: isUserLoggedIn,
         showToast: showToast,
-        getOpenWorkForms:getOpenWorkForms
+        getOpenWorkForms: getOpenWorkForms,
+        loadingConfigData: loadingConfigData
     }
 
 })()

@@ -242,6 +242,28 @@ var AppUtils = (function () {
         })
     }
 
+    const WorkFormLabel={'company':"派工单位:",
+    'requestId':'派工单号:',
+    'creationtime':'派工时间:',
+    'isSecurityTools':'领取安全工具:',
+    'isSpareParts':'领取备品备件:',
+    'planreturntime':'计划返回时间:',
+    'requestStatus':'工单状态:',
+    'requester':'派工人员:',
+    'returntime':'实际返回时间:',
+    'sanPiaoZhiXing':'三票执行:',
+    'securityTools':'安全工具:',
+    'spareParts':'备品备件:',
+    'workCategory':'工作类别:',
+    'workcomments':'工作备注:',
+    'workdocument':'工作图片:',
+    'workers':'工作人员:',
+    'workersnumber':'人员数量:',
+    'workhour':'工 时:',
+    'workitem':'工作内容:',
+    'worklocation':'工作地点:',
+    }
+
 
 
     /**

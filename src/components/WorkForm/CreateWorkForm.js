@@ -12,6 +12,20 @@ import { StackNavigator } from 'react-navigation';
 import ItemSelection from './ItemSelection'
 import AppUtils from '../../Share/AppUtils'
 
+class TouchableFormItem extends React.Component {
+    _onPress = () => {
+        this.props.onPressItem(this.props.data.category)
+    }
+    render() {
+        return (
+            <TouchableOpacity style={styles.row} onPress={this._onPress} >
+                <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+            </TouchableOpacity>
+        )
+    }
+}
+
 class CreateWorkForm extends React.Component {
     static navigationOptions = ({ navigation }) => ({
         headerTitle: 'WorkForm - ' + navigation.state.params.workFormData.requestId,
@@ -21,8 +35,15 @@ class CreateWorkForm extends React.Component {
         this.state = this.props.navigation.state.params.workFormData;
         this.sectedItem = '';
     }
-    _onPress = () => {
-        this.props.navigation.navigate('ItemSelection', { 'itemName': 'company' })
+    _onPress = (category) => {
+        this.props.navigation.navigate('ItemSelection', { 'itemName': category, 'onSelect': this.onSelect })
+    };
+    onSelect = (data) => {
+        switch (data.category) {
+            case 'company':
+                this.setState({ 'company': data.value })
+                break
+        }
     };
     render() {
         return (
@@ -30,17 +51,16 @@ class CreateWorkForm extends React.Component {
                 <View style={styles.row}>
                     <Text style={styles.WFItemLabel}>派工单号:</Text>
                     <Text style={styles.WFItemContent}>{this.state.requestId}</Text>
-                    {/* <Text style={styles.WFItemLabel}>工单状态:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.requestStatus}</Text> */}
                 </View>
+                <TouchableFormItem
+                    style={styles.row}
+                    onPressItem={this._onPress}
+                    data={{ 'label': '派工单位:', 'category': 'company', 'data': this.state.company }
+                    } />
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
-                    <Text style={styles.WFItemLabel}>派工单位:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.company}</Text>
-                </TouchableOpacity>
-                <View style={styles.row}>
                     <Text style={styles.WFItemLabel}>派工人员:</Text>
                     <Text style={styles.WFItemContent}>{this.state.requester}</Text>
-                </View>
+                </TouchableOpacity>
                 <View style={styles.row}>
                     <Text style={styles.WFItemLabel}>派工时间:</Text>
                     <Text style={styles.WFItemContent}>{this.state.creationtime}</Text>
@@ -112,11 +132,11 @@ const styles = StyleSheet.create({
         color: "#000"
     },
     WFItemLabel: {
-        width: 70,
+        width: 90,
         paddingRight: 5,
         fontSize: 10,
         color: "#000",
-        fontWeight: '500'
+        //fontWeight: '500'
     },
     row: {
         height: 40,
@@ -130,7 +150,7 @@ const styles = StyleSheet.create({
     },
     container: {
         padding: 10,
-        backgroundColor:'white'
+        backgroundColor: 'white'
     },
     headerStyle: {
         backgroundColor: "#98AFC7",
@@ -159,5 +179,8 @@ export default StackNavigator({
             // headerTitleStyle: styles.headerTitleStyle
         }),
     },
-})
+}, {
+        headerMode: 'none',
+        mode: 'modal',
+    })
 

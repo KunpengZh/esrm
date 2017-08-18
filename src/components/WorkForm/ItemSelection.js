@@ -18,7 +18,8 @@ export default class ItemSelection extends React.Component {
         super(props)
         this.state = {
             showFullScreenLoading: false,
-            data: []
+            data: [],
+            category:''
         }
     }
     _getConfigDataSource(itemName) {
@@ -48,6 +49,7 @@ export default class ItemSelection extends React.Component {
         let configDataSource;
         switch (itemName) {
             case 'company':
+                this.setState({category:'company'})
                 this._getConfigDataSource('companySource').then((res) => {
                     for (let i = 0; i < res.length; i++) {
                         res[i]['key'] = i;
@@ -57,7 +59,8 @@ export default class ItemSelection extends React.Component {
         }
     }
     _onPressItem = (itemName) => {
-        console.log(itemName);
+        this.props.navigation.goBack(null)
+        this.props.navigation.state.params.onSelect({value:itemName,category:this.state.category});
     }
     render() {
 

@@ -110,7 +110,7 @@ export default StackNavigator({
     WorkFormHome: {
         screen: WorkFormHome,
         navigationOptions: ({ navigation }) => ({
-            // headerTitle: 'My Work Forms',
+            headerTitle: 'My Work Forms',
             // headerStyle: styles.headerStyle,
            // headerTitleStyle: styles.headerTitleStyle
         }),
@@ -118,7 +118,6 @@ export default StackNavigator({
     CreateWorkForm: {
         screen: CreateWorkForm,
         navigationOptions: ({ navigation }) => ({
-
             //headerTitle: 'Create New WorkForm',
             // headerStyle: styles.headerStyle,
              //headerTitleStyle: styles.headerTitleStyle
@@ -136,11 +135,10 @@ export default StackNavigator({
         screen: CreateWorkForm,
         navigationOptions: ({ navigation }) => ({
             //headerTitle: 'WorkForm - ',
-            
             // headerStyle: styles.headerStyle,
              //headerTitleStyle: styles.headerTitleStyle
         })
     }
 }, {
-        headerMode: "none",
+        //headerMode: "none",
     })

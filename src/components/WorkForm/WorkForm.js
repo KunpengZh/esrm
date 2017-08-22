@@ -5,7 +5,8 @@ import {
     Image,
     StyleSheet,
     TouchableOpacity,
-    Text
+    Text,
+    Button
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
@@ -15,9 +16,6 @@ import AppUtils from '../../Share/AppUtils'
 import WorkFformList from './WorkFormList'
 
 class WorkFormHome extends React.Component {
-    // static navigationOptions = {
-    //     drawerLabel: 'Home',
-    // };
     constructor(props) {
         super(props)
         this.state = {
@@ -42,7 +40,7 @@ class WorkFormHome extends React.Component {
             }
         }
         if (find) {
-            this.props.navigation.navigate('OpenWorkForm', { workFormData: workForm });
+            this.props.navigation.navigate('OpenWorkForm', { workFormData: workForm, formModel: 'EditModel' });
         }
     };
     render() {
@@ -97,12 +95,11 @@ const styles = StyleSheet.create({
         height: 24,
     },
     headerStyle: {
-        backgroundColor: "#98AFC7",
-        height: 30,
+        //backgroundColor: "#98AFC7",
+        height: 35,
     },
     headerTitleStyle: {
-        color:'#15317E',
-        tintColor:'#15317E'
+        fontSize: 12, // 文字大小
     }
 
 })
@@ -111,8 +108,8 @@ export default StackNavigator({
         screen: WorkFormHome,
         navigationOptions: ({ navigation }) => ({
             headerTitle: 'My Work Forms',
-            // headerStyle: styles.headerStyle,
-           // headerTitleStyle: styles.headerTitleStyle
+            headerStyle: styles.headerStyle,
+            headerTitleStyle: styles.headerTitleStyle
         }),
     },
     CreateWorkForm: {
@@ -120,7 +117,7 @@ export default StackNavigator({
         navigationOptions: ({ navigation }) => ({
             //headerTitle: 'Create New WorkForm',
             // headerStyle: styles.headerStyle,
-             //headerTitleStyle: styles.headerTitleStyle
+            //headerTitleStyle: styles.headerTitleStyle
         }),
     },
     CreateUrgentWorkForm: {
@@ -134,11 +131,13 @@ export default StackNavigator({
     OpenWorkForm: {
         screen: CreateWorkForm,
         navigationOptions: ({ navigation }) => ({
-            //headerTitle: 'WorkForm - ',
-            // headerStyle: styles.headerStyle,
-             //headerTitleStyle: styles.headerTitleStyle
+            headerTitle: 'WorkForm - ' + navigation.state.params.workFormData.requestId,
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
+            //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
         })
     }
 }, {
         //headerMode: "none",
+
     })

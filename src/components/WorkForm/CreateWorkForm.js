@@ -6,135 +6,178 @@ import {
     StyleSheet,
     ScrollView,
     TouchableOpacity,
+    TextInput
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
 
 import ItemSelection from './ItemSelection'
 import AppUtils from '../../Share/AppUtils'
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+
+
+
+const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime', 'workers', 'workhour', 'planreturntime', 'workCategory'
+    , 'workitem', 'workersnumber', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'worklocation', 'returntime', 'workcomments'];
+
+const EditModel = {
+    'editable': ['workhour', 'worklocation', 'returntime', 'workcomments'],
+    'selectable': ['company']
+};
+
 
 class TouchableFormItem extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            value: props.data.data
+        }
+    }
     _onPress = () => {
         this.props.onPressItem(this.props.data.category)
     }
+    _updateValue = (newValue) => {
+        this.setState({ value: newValue });
+        this.props.updateFormModel(this.props.data.category, newValue);
+    }
     render() {
-        return (
-            <TouchableOpacity style={styles.row} onPress={this._onPress} >
-                <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-            </TouchableOpacity>
-        )
+        switch (this.props.formModel) {
+            case "EditModel":
+                if (EditModel.editable.indexOf(this.props.data.category) >= 0) {
+                    return (
+                        <TouchableOpacity style={styles.row} >
+                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                            <TextInput
+                                underlineColorAndroid='transparent'
+                                style={styles.textInput}
+                                onChangeText={(text) => this._updateValue(text)}
+                                value={this.state.value}
+                            />
+                        </TouchableOpacity>
+                    )
+                } else if (EditModel.selectable.indexOf(this.props.data.category) >= 0) {
+                    return (
+                        <TouchableOpacity style={styles.row} onPress={this._onPress} >
+                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                            <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                        </TouchableOpacity>
+                    )
+                } else {
+                    return (
+                        <View style={styles.row} >
+                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                            <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                        </View>
+                    )
+                };
+                break;
+            default:
+                return (
+                    <View style={styles.row} >
+                        <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                        <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                    </View>
+                )
+        }
     }
 }
 
 class CreateWorkForm extends React.Component {
-    static navigationOptions = ({ navigation }) => ({
-        headerTitle: 'WorkForm - ' + navigation.state.params.workFormData.requestId,
-    });
+    static navigationOptions = ({ navigation }) => {
+        const { params = {} } = navigation.state;
+        return {
+            headerRight: <TouchableOpacity onPress={() => params.handleSave()}>
+                <FontAwesome name="save" style={styles.headericon} />
+            </TouchableOpacity>,
+            headerLeft: <TouchableOpacity onPress={() => params.goBack()}>
+            <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+        </TouchableOpacity>
+        };
+    };
     constructor(props) {
         super(props);
         this.state = this.props.navigation.state.params.workFormData;
         this.sectedItem = '';
+        this.formModel = this.props.navigation.state.params.formModel;
+        this.updatedFormModel = {};
     }
     _onPress = (category) => {
         this.props.navigation.navigate('ItemSelection', { 'itemName': category, 'onSelect': this.onSelect })
-    };
+    }
     onSelect = (data) => {
         switch (data.category) {
             case 'company':
                 this.setState({ 'company': data.value })
                 break
         }
-    };
+    }
+    updateFormModel = (key, value) => {
+        this.updatedFormModel[key] = value;
+    }
+    _saveWorkForm() {
+        console.log("to save work form")
+    }
+    _goBack(){
+        this.props.navigation.goBack(null);
+    }
+    componentDidMount() {
+        this.props.navigation.setParams({ handleSave: this._saveWorkForm.bind(this), goBack: this._goBack.bind(this) });
+    }
     render() {
+        let self = this;
+        const WorkFormLabel = AppUtils.WorkFormLabel;
+        var items = [];
+        let unicKey = 100;
+        WorkFormRenderItems.forEach(function (item) {
+            items.push(
+                <TouchableFormItem
+                    onPressItem={self._onPress}
+                    key={unicKey++}
+                    data={{ 'label': WorkFormLabel[item], 'category': item, 'data': self.state[item] }}
+                    formModel={self.formModel}
+                    updateFormModel={self.updateFormModel}
+                />
+            )
+        })
         return (
             <ScrollView contentContainerStyle={styles.container}>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>派工单号:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.requestId}</Text>
-                </View>
-                <TouchableFormItem
-                    style={styles.row}
-                    onPressItem={this._onPress}
-                    data={{ 'label': '派工单位:', 'category': 'company', 'data': this.state.company }
-                    } />
-                <TouchableOpacity style={styles.row} onPress={this._onPress} >
-                    <Text style={styles.WFItemLabel}>派工人员:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.requester}</Text>
-                </TouchableOpacity>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>派工时间:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.creationtime}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>作业人员:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.workers}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>工作数量:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.workhour}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>计划返回时间:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.planreturntime}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>任务类别:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.workCategory}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>工作任务:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.workitem}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>工作人数:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.workersnumber}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>领取安全工具:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.isSecurityTools}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>领取备品备件:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.isSpareParts}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>三票执行:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.sanPiaoZhiXing}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>安全工具:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.securityTools}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>备品备件:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.spareParts}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>工作地点:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.worklocation}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>实际返回时间:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.returntime}</Text>
-                </View>
-                <View style={styles.row}>
-                    <Text style={styles.WFItemLabel}>工作备注:</Text>
-                    <Text style={styles.WFItemContent}>{this.state.workcomments}</Text>
-                </View>
+                {items}
             </ScrollView>
         )
     }
 }
 
 const styles = StyleSheet.create({
-    WFItemContent: {
-        fontSize: 10,
+    headericon: {
+        fontSize: 22,
+        //color: "#157DEC",
+        paddingRight:10,
+        paddingLeft:10
+        //color:"#1589FF"
+    },
+    textInput: {
+        height: 40,
+        flex: 1,
+        //backgroundColor: 'rgba(255,255,255,0.2)',
+        //marginBottom: 20,
+        //color: '#FFF',
+        paddingHorizontal: 10,
+        fontSize: 12,
         color: "#000"
+    },
+    WFItemContent: {
+        fontSize: 12,
+        color: "#000"
+    },
+    buttonSave:{
+        fontSize: 12,
+        fontWeight:"900",
+        paddingRight:10,
+        color: "#000",
     },
     WFItemLabel: {
         width: 90,
         paddingRight: 5,
-        fontSize: 10,
+        fontSize: 12,
         color: "#000",
         //fontWeight: '500'
     },

@@ -66,7 +66,6 @@ var AppUtils = (function () {
         configDoc[key] = value;
     }
     var getConfigItem = function (key) {
-        console.log(configDoc);
         return configDoc[key];
     }
 
@@ -284,7 +283,8 @@ var AppUtils = (function () {
         isUserLoggedIn: isUserLoggedIn,
         showToast: showToast,
         getOpenWorkForms: getOpenWorkForms,
-        loadingConfigData: loadingConfigData
+        loadingConfigData: loadingConfigData,
+        WorkFormLabel: WorkFormLabel
     }
 
 })()

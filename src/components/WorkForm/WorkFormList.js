@@ -24,7 +24,6 @@ export default class FlatListBasics extends React.PureComponent {
                 <FlatList
                     ItemSeparatorComponent={this.sepa}
                     data={this.state.data}
-                    //extraData={this.state}
                     keyExtractor={this._keyExtractor}
                     renderItem={({ item }) => {
                         return (
@@ -63,7 +62,6 @@ class WorkForm extends React.Component {
                         <Text style={styles.WFItemLabel}>派工时间:</Text>
                         <Text style={styles.WFItemContent}>{this.props.data.creationtime}</Text>
                     </View>
-
                 </View>
             </TouchableOpacity>
         );

@@ -7,6 +7,7 @@ var AppUtils = (function () {
      * This can be changed from the Settings function
      */
     var appServerURL = "http://120.77.170.133/"
+    //var appServerURL = "http://192.168.0.100/"
 
     var getAppServerURL = function () {
         return appServerURL;
@@ -320,6 +321,55 @@ var AppUtils = (function () {
         })
     }
 
+    /**
+     * Functions to upload image
+     */
+
+    var imageUpload = function (fileUrl, fileName, requestId, imgDescription) {
+        return new Promise(function (resolve, reject) {
+            let data = new FormData();
+            data.append('file', {
+                uri: fileUrl,
+                name: fileName,
+                type: 'image/jpeg'
+            });
+            data.append('requestId', String(requestId));
+            data.append('description', String(imgDescription));
+
+            const fetchOptions = {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'multipart/form-data',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36',
+                    'Host': 'esrm.xianxian.com'
+                },
+                body: data
+            };
+
+            fetch(appServerURL + 'workformapi/upload', fetchOptions).then((response) => response.json()).then((res) => {
+                if (res && res.length > 0) {
+                    res = res[0];
+                    resolve({
+                        status: 200,
+                        message: '上传成功',
+                        data: res
+                    })
+
+                } else {
+                    resolve({
+                        status: 500,
+                        message: res.message,
+                        data: null
+                    })
+                }
+            }).catch((err) => {
+                showToast(err);
+                throw err;
+            })
+        })
+    }
+
 
 
     /**
@@ -343,7 +393,8 @@ var AppUtils = (function () {
         loadingConfigData: loadingConfigData,
         WorkFormLabel: WorkFormLabel,
         updateWorkForm: updateWorkForm,
-        workformDataModel: workformDataModel
+        workformDataModel: workformDataModel,
+        imageUpload: imageUpload
     }
 
 })()

@@ -42,6 +42,17 @@ class WorkFormHome extends React.Component {
         }
         this.setState({ workFormsList: WorkFormList });
     }
+    _reLoadingWorkFormList = () => {
+        this.setState({ showFullScreenLoading: false });
+        AppUtils.getOpenWorkForms().then((res) => {
+            if (res.status) {
+                this.setState({ workFormsList: res.data, showFullScreenLoading: false })
+            } else {
+                this.setState({ showFullScreenLoading: false })
+                AppUtils.showToast(res.message)
+            }
+        })
+    }
     _onPressItem = (id) => {
         let self = this;
         let workForm = {};
@@ -57,7 +68,8 @@ class WorkFormHome extends React.Component {
             this.props.navigation.navigate('OpenWorkForm', {
                 workFormData: workForm,
                 formModel: 'EditModel',
-                updateWorkFormList: self._updateWorkFormList
+                updateWorkFormList: self._updateWorkFormList,
+                reLoadingWorkFormList: self._reLoadingWorkFormList
             });
         }
     };

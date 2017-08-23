@@ -11,6 +11,7 @@
     "react": "16.0.0-alpha.12",
     "react-native": "0.47.1",
     "react-native-cookies": "^3.2.0",
+    "react-native-image-picker": "^0.26.4",
     "react-native-modal-datetime-picker": "^4.9.0",
     "react-native-root-toast": "^1.2.0",
     "react-native-vector-icons": "^4.3.0",

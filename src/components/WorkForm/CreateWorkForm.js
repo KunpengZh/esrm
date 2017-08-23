@@ -16,6 +16,8 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import FullScreenLoading from '../ShareComments/FullScreenLoading';
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
+import ImagePicker from 'react-native-image-picker';
+import WorkFormImageView from './WorkFormImageView'
 
 
 
@@ -23,8 +25,9 @@ const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime'
     , 'workitem', 'workersnumber', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'worklocation', 'returntime', 'workcomments'];
 
 const EditModel = {
-    'editable': ['workhour', 'worklocation', 'workcomments'],
+    'editable': ['worklocation', 'workcomments'],
     'selectable': [],
+    'numberonly': ['workhour'],
     'dateTime': ['returntime']
 };
 
@@ -33,7 +36,7 @@ class WorkFormItem extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            value: props.data.data,
+            value: props.data.data ? props.data.data : '',
         }
     }
     _onPress = () => {
@@ -42,6 +45,30 @@ class WorkFormItem extends React.Component {
     _updateValue = (newValue) => {
         this.setState({ value: newValue });
         this.props.updateFormModel(this.props.data.category, newValue);
+    }
+    _validateOnlyNumber(text) {
+        let numbers = '0123456789.';
+        let validate = true;
+        for (var i = 0; i < text.length && validate; i++) {
+            if (numbers.indexOf(text[i]) < 0) {
+                AppUtils.showToast("工作数量只能输入数值");
+                validate = false;
+                break;
+            }
+        }
+        return validate;
+    }
+    _updateNumberValue = (newValue) => {
+        if (this._validateOnlyNumber(newValue)) {
+            this.setState({ value: newValue });
+            this.props.updateFormModel(this.props.data.category, newValue);
+        } else {
+            if (!this._validateOnlyNumber(this.state.value)) {
+                this.setState({ value: '' });
+                this.props.updateFormModel(this.props.data.category, '');
+            }
+        }
+
     }
     _showDateTimePicker = () => {
         this.props.showDateTimePicker(this.props.data.category)
@@ -57,6 +84,19 @@ class WorkFormItem extends React.Component {
                                 underlineColorAndroid='transparent'
                                 style={styles.textInput}
                                 onChangeText={(text) => this._updateValue(text)}
+                                value={this.state.value + ''}
+                            />
+                        </View>
+                    )
+                } else if (EditModel.numberonly.indexOf(this.props.data.category) >= 0) {
+                    return (
+                        <View style={styles.row} >
+                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                            <TextInput
+                                underlineColorAndroid='transparent'
+                                keyboardType='numeric'
+                                style={styles.textInput}
+                                onChangeText={(text) => this._updateNumberValue(text)}
                                 value={this.state.value + ''}
                             />
                         </View>
@@ -130,7 +170,6 @@ class CreateWorkForm extends React.Component {
         this.updatedFormModel[key] = value;
     }
     _saveWorkForm() {
-       
         if (JSON.stringify(this.updatedFormModel) !== "{}") {
             let workFormData = {};
             /**
@@ -162,7 +201,87 @@ class CreateWorkForm extends React.Component {
             AppUtils.showToast("没有数据更新")
         }
     }
+    _completeRequestForm() {
+        let workFormData = {};
+        /**
+         * To clean workform data base on the data model defined in AppUtils
+         */
+        for (let key in AppUtils.workformDataModel) {
+            if (this.state.hasOwnProperty(key)) {
+                workFormData[key] = this.state[key]
+            }
+        }
+        if (JSON.stringify(this.updatedFormModel) !== "{}") {
+            for (let key in this.updatedFormModel) {
+                workFormData[key] = this.updatedFormModel[key];
+            }
+        }
+
+
+        if (!this.validateWorkForm(workFormData)) {
+            return;
+        }
+        if (workFormData.workhour === null || workFormData.workhour === "") {
+            AppUtils.showToast("工作数量不能为空");
+            return false;
+        }
+        if (workFormData.returntime === "") {
+            AppUtils.showToast("请填写返回时间");
+            return;
+        }
+        workFormData.requestStatus = "Closed";
+        this.setState({ showFullScreenLoading: true });
+        AppUtils.updateWorkForm(workFormData).then((res) => {
+            this.setState({ showFullScreenLoading: false });
+            AppUtils.showToast(res.message);
+            if (res.status === 200) {
+                this.props.navigation.state.params.reLoadingWorkFormList();
+                this._goBack();
+            }
+        }).catch((err) => {
+            this.setState({ showFullScreenLoading: false });
+            AppUtils.showToast(err);
+        })
+    }
     validateWorkForm(workFormData) {
+        if (workFormData.company === "") {
+            AppUtils.showToast("派工单位不能为空");
+            return false;
+        }
+        if (workFormData.requester === "") {
+            AppUtils.showToast("派工人员不能为空");
+            return false;
+        }
+        if (workFormData.workitem === "") {
+            AppUtils.showToast("工作任务不能为空");
+            return false;
+        }
+        if (workFormData.worklocation === "") {
+            AppUtils.showToast("工作地点不能为空");
+            return false;
+        }
+        if (workFormData.workers.length <= 0) {
+            AppUtils.showToast("作业人员不能为空");
+            return false;
+        }
+        if (workFormData.workCategory === "") {
+            AppUtils.showToast("任务类别不能为空");
+            return false;
+        }
+        if (workFormData.planreturntime === "") {
+            AppUtils.showToast("计划返回时间不能为空");
+            return false;
+        }
+        if (this.formModel === 'CreateModel') {
+            var planreturntime = workFormData.planreturntime;
+            var planreturntimestamp = Date.parse(new Date(planreturntime)) / 1000 / 60;
+            var createtimestamp = Date.parse(new Date(workFormData.creationtime)) / 1000 / 60;
+            if (planreturntimestamp <= createtimestamp) {
+                AppUtils.showToast("计划返回时间不能早于派工时间");
+                return false;
+            }
+        }
+
         if (this.formModel === "EditModel") {
             var returntime = workFormData.returntime;
             if (returntime !== "") {
@@ -198,6 +317,57 @@ class CreateWorkForm extends React.Component {
 
         this.setState(newState)
     };
+    _selectImagesToUpload = () => {
+        const options = {
+            title: '选择图片',
+            cancelButtonTitle: '取消',
+            takePhotoButtonTitle: '拍照',
+            chooseFromLibraryButtonTitle: '图片库',
+            cameraType: 'back',
+            mediaType: 'photo',
+            videoQuality: 'high',
+            durationLimit: 10,
+            maxWidth: 600,
+            maxHeight: 600,
+            aspectX: 2,
+            aspectY: 1,
+            quality: 0.8,
+            angle: 0,
+            allowsEditing: false,
+            noData: false,
+            storageOptions: {
+                skipBackup: true,
+                path: 'images'
+            }
+        };
+        ImagePicker.showImagePicker(options, (response) => {
+            var self = this;
+            if (response.didCancel) {
+                //console.log('User cancelled image picker');
+            }
+            else if (response.error) {
+                //console.log('ImagePicker Error: ', response.error);
+            }
+            else if (response.customButton) {
+                //console.log('User tapped custom button: ', response.customButton);
+            }
+            else {
+                let source = { uri: response.uri };
+                this.setState({ showFullScreenLoading: true });
+                AppUtils.imageUpload(response.uri, response.fileName, this.state.requestId, "").then((res) => {
+                    this.setState({ showFullScreenLoading: false });
+                    AppUtils.showToast(res.message);
+                    if (res.status === 200) {
+                        this.props.navigation.state.params.updateWorkFormList(res.data);
+                        this.setState(res.data);
+                        //this._goBack();
+                    }
+                }).catch((err) => {
+                    this.setState({ showFullScreenLoading: false });
+                })
+            }
+        });
+    }
     render() {
         let self = this;
         const WorkFormLabel = AppUtils.WorkFormLabel;
@@ -220,13 +390,14 @@ class CreateWorkForm extends React.Component {
                 <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 {items}
                 <View style={styles.ButtonContainer}>
-                    <TouchableOpacity onPress={this._saveWorkForm.bind(this)} style={styles.actionButtonContainer}>
+                    <TouchableOpacity onPress={this._completeRequestForm.bind(this)} style={styles.actionButtonContainer}>
                         <Text style={styles.actionButtonText}>完成工单</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={this._goBack} style={styles.actionButtonContainer}>
+                    <TouchableOpacity onPress={this._selectImagesToUpload} style={styles.actionButtonContainer}>
                         <Text style={styles.actionButtonText}>上传照片</Text>
                     </TouchableOpacity>
                 </View>
+                <WorkFormImageView workDocuments={this.state.workdocument} />
                 <DateTimePicker
                     isVisible={this.state.isDateTimePickerVisible}
                     onConfirm={this._handleDatePicked}

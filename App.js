@@ -12,8 +12,6 @@ import Login from './src/components/Login/Login'
 import MainNavigate from './src/components/MainNavigate/MainNavigate'
 import StartLoading from './src/components/StartLoadingScreen/StartLoadingScreen'
 
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-
 
 const esrm = StackNavigator({
   Login: {

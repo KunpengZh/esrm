@@ -16,6 +16,9 @@ export default class Loading extends Component {
     hideLoading() {
         this.setState({ modalVisible: false });
     }
+    componentWillReceiveProps(newProps) {
+        this.setState({modalVisible:newProps.showLoading});
+    }
     render() {
         return (
             <Modal transparent={true} onRequestClose={() => this.onRequestClose()} visible={this.state.modalVisible}>

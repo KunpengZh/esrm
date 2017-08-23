@@ -241,26 +241,83 @@ var AppUtils = (function () {
         })
     }
 
-    const WorkFormLabel={'company':"派工单位:",
-    'requestId':'派工单号:',
-    'creationtime':'派工时间:',
-    'isSecurityTools':'领取安全工具:',
-    'isSpareParts':'领取备品备件:',
-    'planreturntime':'计划返回时间:',
-    'requestStatus':'工单状态:',
-    'requester':'派工人员:',
-    'returntime':'实际返回时间:',
-    'sanPiaoZhiXing':'三票执行:',
-    'securityTools':'安全工具:',
-    'spareParts':'备品备件:',
-    'workCategory':'工作类别:',
-    'workcomments':'工作备注:',
-    'workdocument':'工作图片:',
-    'workers':'工作人员:',
-    'workersnumber':'人员数量:',
-    'workhour':'工 时:',
-    'workitem':'工作内容:',
-    'worklocation':'工作地点:',
+    const WorkFormLabel = {
+        'company': "派工单位:",
+        'requestId': '派工单号:',
+        'creationtime': '派工时间:',
+        'isSecurityTools': '领取安全工具:',
+        'isSpareParts': '领取备品备件:',
+        'planreturntime': '计划返回时间:',
+        'requestStatus': '工单状态:',
+        'requester': '派工人员:',
+        'returntime': '实际返回时间:',
+        'sanPiaoZhiXing': '三票执行:',
+        'securityTools': '安全工具:',
+        'spareParts': '备品备件:',
+        'workCategory': '工作类别:',
+        'workcomments': '工作备注:',
+        'workdocument': '工作图片:',
+        'workers': '工作人员:',
+        'workersnumber': '人员数量:',
+        'workhour': '工 时:',
+        'workitem': '工作内容:',
+        'worklocation': '工作地点:',
+    }
+
+    const workformDataModel = {
+        "requestId": "String",
+        "company": "String",
+        "requester": "String",
+        "creationtime": "String",
+        "workitem": "String",
+        "workCategory": "String",
+        "worklocation": "String",
+        "workers": "Mixed",
+        "workersnumber": "String",
+        "workhour": "Number",
+        "planreturntime": "String",
+        "returntime": "String",
+        "workcomments": "String",
+        "workdocument": "Mixed",
+        "requestStatus": "String",
+        "isSecurityTools": "String",
+        "securityTools": "Mixed",
+        "isSpareParts": "String",
+        "spareParts": "Mixed",
+        "sanPiaoZhiXing": "String",
+        "perhourwage": "Number",
+        "requestwage": "Number"
+    }
+
+    /**
+     * Save and Update exist Workform
+     */
+
+    var updateWorkForm = function (workFormData) {
+        return new Promise(function (resolve, reject) {
+            fetch(appServerURL + 'workformapi/save', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36',
+                    'Host': 'esrm.xianxian.com'
+                },
+                body: JSON.stringify({
+                    data: workFormData
+                })
+            }).then((response) => response.json()).then((res) => {
+                if (res.requestId) {
+                    resolve({ "message": "保存成功", status: 200, data: res });
+                } else {
+                    resolve({ "message": "保存失败", status: 500, data: '' });
+
+                }
+            }).catch((err) => {
+                showToast(err);
+                throw err;
+            })
+        })
     }
 
 
@@ -284,7 +341,9 @@ var AppUtils = (function () {
         showToast: showToast,
         getOpenWorkForms: getOpenWorkForms,
         loadingConfigData: loadingConfigData,
-        WorkFormLabel: WorkFormLabel
+        WorkFormLabel: WorkFormLabel,
+        updateWorkForm: updateWorkForm,
+        workformDataModel: workformDataModel
     }
 
 })()

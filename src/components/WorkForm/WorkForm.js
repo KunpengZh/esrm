@@ -14,22 +14,36 @@ import CreateWorkForm from './CreateWorkForm'
 import CreateUrgentWorkForm from './CreateUrgentWorkForm'
 import AppUtils from '../../Share/AppUtils'
 import WorkFformList from './WorkFormList'
+import FullScreenLoading from '../ShareComments/FullScreenLoading';
 
 class WorkFormHome extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-            workFormsList: []
+            workFormsList: [],
+            showFullScreenLoading: true
         }
         AppUtils.getOpenWorkForms().then((res) => {
             if (res.status) {
-                this.setState({ workFormsList: res.data })
+                this.setState({ workFormsList: res.data, showFullScreenLoading: false })
             } else {
+                this.setState({ showFullScreenLoading: false })
                 AppUtils.showToast(res.message)
             }
         })
     }
+    _updateWorkFormList = (newData) => {
+        let WorkFormList = this.state.workFormsList;
+        for (let i = 0; i < WorkFormList.length; i++) {
+            if (WorkFormList[i].requestId === newData.requestId) {
+                WorkFormList[i] = newData;
+                break;
+            }
+        }
+        this.setState({ workFormsList: WorkFormList });
+    }
     _onPressItem = (id) => {
+        let self = this;
         let workForm = {};
         let find = false;
         for (let i = 0; i < this.state.workFormsList.length; i++) {
@@ -40,12 +54,17 @@ class WorkFormHome extends React.Component {
             }
         }
         if (find) {
-            this.props.navigation.navigate('OpenWorkForm', { workFormData: workForm, formModel: 'EditModel' });
+            this.props.navigation.navigate('OpenWorkForm', {
+                workFormData: workForm,
+                formModel: 'EditModel',
+                updateWorkFormList: self._updateWorkFormList
+            });
         }
     };
     render() {
         return (
             <View style={styles.container}>
+                <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 <View style={styles.topContainer} >
                     <TouchableOpacity onPress={() => this.props.navigation.navigate('CreateWorkForm')}>
                         <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />

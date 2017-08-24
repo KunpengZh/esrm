@@ -74,6 +74,7 @@ class WorkFormHome extends React.Component {
         }
     }
     _createNewWorkForm = () => {
+        let self=this;
         let data = {
             requestId: "",
             company: "",

@@ -56,8 +56,9 @@ class WorkFormItem extends React.Component {
         this.props.onPressItem(this.props.data.category)
     }
     _updateValue = (newValue) => {
-        this.setState({ value: newValue });
+
         this.props.updateFormModel(this.props.data.category, newValue);
+        this.setState({ value: newValue });
     }
     _validateOnlyNumber(text) {
         let numbers = '0123456789.';
@@ -318,36 +319,44 @@ class CreateWorkForm extends React.Component {
         this.updatedFormModel[key] = value;
     }
     _saveWorkForm() {
-        if (JSON.stringify(this.updatedFormModel) !== "{}") {
-            let workFormData = {};
-            /**
-             * To clean workform data base on the data model defined in AppUtils
-             */
-            for (let key in AppUtils.workformDataModel) {
-                if (this.state.hasOwnProperty(key)) {
-                    workFormData[key] = this.state[key]
-                }
+       
+        if (this.formModel === 'EditModel') {
+            if (JSON.stringify(this.updatedFormModel) === "{}") {
+                AppUtils.showToast("没有数据更新");
+                return;
             }
-            for (let key in this.updatedFormModel) {
-                workFormData[key] = this.updatedFormModel[key];
-            }
-            if (this.validateWorkForm(workFormData)) {
-                this.setState({ showFullScreenLoading: true });
-                AppUtils.updateWorkForm(workFormData).then((res) => {
-                    this.setState({ showFullScreenLoading: false });
-                    AppUtils.showToast(res.message);
-                    if (res.status === 200) {
-                        this.props.navigation.state.params.updateWorkFormList(res.data);
-                        this._goBack();
-                    }
-                }).catch((err) => {
-                    this.setState({ showFullScreenLoading: false });
-                    AppUtils.showToast(err);
-                })
-            }
-        } else {
-            AppUtils.showToast("没有数据更新")
         }
+
+        let workFormData = {};
+        /**
+         * To clean workform data base on the data model defined in AppUtils
+         */
+        for (let key in AppUtils.workformDataModel) {
+            if (this.state.hasOwnProperty(key)) {
+                workFormData[key] = this.state[key]
+            }
+        }
+
+        for (let key in this.updatedFormModel) {
+            workFormData[key] = this.updatedFormModel[key];
+        }
+
+        if (this.validateWorkForm(workFormData)) {
+            this.setState({ showFullScreenLoading: true });
+            AppUtils.updateWorkForm(workFormData).then((res) => {
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.showToast(res.message);
+                if (res.status === 200) {
+                    this.props.navigation.state.params.reLoadingWorkFormList();
+                    this._goBack();
+                }
+            }).catch((err) => {
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.showToast(err);
+            })
+        }
+
+
     }
     _completeRequestForm() {
         let workFormData = {};
@@ -392,6 +401,7 @@ class CreateWorkForm extends React.Component {
         })
     }
     validateWorkForm(workFormData) {
+        console.log(workFormData);
         if (workFormData.company === "") {
             AppUtils.showToast("派工单位不能为空");
             return false;

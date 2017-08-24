@@ -80,29 +80,6 @@ var AppUtils = (function () {
                     for (let i = 0; i < jsonRes.length; i++) {
                         let category = jsonRes[i].category;
                         configDoc[category] = jsonRes[i].data;
-                        // switch (category) {
-                        //     case 'companySource':
-                        //         configDoc.companySource = jsonRes[i].data;
-                        //         break;
-                        //     case 'companyAdmin':
-                        //         configDoc.companyAdmin = jsonRes[i].data;
-                        //         break;
-                        //     case 'companyEmployee':
-                        //         configDoc.companyEmployee = jsonRes[i].data;
-                        //         break;
-                        //     case 'workItem':
-                        //         configDoc.workItem = jsonRes[i].data;
-                        //         break;
-                        //     case 'workCategory':
-                        //         configDoc.workCategory = jsonRes[i].data;
-                        //         break;
-                        //     case 'spareParts':
-                        //         configDoc.spareParts = jsonRes[i].data;
-                        //         break;
-                        //     case 'securityTools':
-                        //         configDoc.securityTools = jsonRes[i].data;
-                        //         break;
-                        // }
                     }
                     resolve({ status: true, message: '' });
                 }).catch((error) => {

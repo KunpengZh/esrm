@@ -72,13 +72,56 @@ class WorkFormHome extends React.Component {
                 reLoadingWorkFormList: self._reLoadingWorkFormList
             });
         }
-    };
+    }
+    _createNewWorkForm = () => {
+        let data = {
+            requestId: "",
+            company: "",
+            requester: "",
+            creationtime: "",
+            workitem: "",
+            workCategory: "",
+            worklocation: "",
+            workers: [],
+            workersnumber: "",
+            workhour: "",
+            planreturntime: "",
+            returntime: "",
+            workcomments: "",
+            workdocument: [],
+            requestStatus: "New",
+            securityTools: [],
+            spareParts: [],
+            isSpareParts: "",
+            isSecurityTools: "",
+            sanPiaoZhiXing: "",
+        };
+
+        AppUtils.newWFRequestId().then((res) => {
+            if (res.status === 200) {
+                data.requestId = res.data.requestId;
+                data.creationtime = res.data.creationtime
+                this.props.navigation.navigate('CreateWorkForm', {
+                    workFormData: data,
+                    formModel: 'CreateModel',
+                    updateWorkFormList: self._updateWorkFormList,
+                    reLoadingWorkFormList: self._reLoadingWorkFormList
+                })
+            } else {
+                AppUtils.showToast(res.message);
+                return;
+            }
+        }).catch((err) => {
+            AppUtils.showToast(err);
+            return;
+        })
+    }
     render() {
         return (
             <View style={styles.container}>
                 <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 <View style={styles.topContainer} >
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('CreateWorkForm')}>
+                    <TouchableOpacity onPress={this._createNewWorkForm}>
                         <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />
                         <Text>新建派工</Text>
                     </TouchableOpacity>

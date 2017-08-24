@@ -25,11 +25,20 @@ const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime'
     , 'workitem', 'workersnumber', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'worklocation', 'returntime', 'workcomments'];
 
 const EditModel = {
+    'adminSelectable': [],
     'editable': ['worklocation', 'workcomments'],
     'selectable': [],
     'numberonly': ['workhour'],
     'dateTime': ['returntime']
 };
+const CreateModel = {
+    'adminSelectable': ['company', 'requester'],
+    'editable': ['worklocation', 'workcomments'],
+    'selectable': ['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'workers'],
+    'numberonly': ['workhour'],
+    'dateTime': ['planreturntime', 'returntime']
+};
+
 
 
 class WorkFormItem extends React.Component {
@@ -74,64 +83,72 @@ class WorkFormItem extends React.Component {
         this.props.showDateTimePicker(this.props.data.category)
     }
     render() {
-        switch (this.props.formModel) {
-            case "EditModel":
-                if (EditModel.editable.indexOf(this.props.data.category) >= 0) {
-                    return (
-                        <View style={styles.row} >
-                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                            <TextInput
-                                underlineColorAndroid='transparent'
-                                style={styles.textInput}
-                                onChangeText={(text) => this._updateValue(text)}
-                                value={this.state.value + ''}
-                            />
-                        </View>
-                    )
-                } else if (EditModel.numberonly.indexOf(this.props.data.category) >= 0) {
-                    return (
-                        <View style={styles.row} >
-                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                            <TextInput
-                                underlineColorAndroid='transparent'
-                                keyboardType='numeric'
-                                style={styles.textInput}
-                                onChangeText={(text) => this._updateNumberValue(text)}
-                                value={this.state.value + ''}
-                            />
-                        </View>
-                    )
-                } else if (EditModel.selectable.indexOf(this.props.data.category) >= 0) {
-                    return (
-                        <TouchableOpacity style={styles.row} onPress={this._onPress} >
-                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                            <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-                        </TouchableOpacity>
-                    )
-                } else if (EditModel.dateTime.indexOf(this.props.data.category) >= 0) {
-                    return (
-                        <TouchableOpacity style={styles.row} onPress={this._showDateTimePicker}>
-                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                            <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-                        </TouchableOpacity>
-                    )
-                } else {
-                    return (
-                        <View style={styles.row} >
-                            <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                            <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-                        </View>
-                    )
-                };
-                break;
-            default:
-                return (
-                    <View style={styles.row} >
-                        <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                        <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-                    </View>
-                )
+
+        let curModel = EditModel;
+        if (this.props.formModel === "EditModel") {
+            curModel = EditModel;
+        } else if (this.props.formModel === "CreateModel") {
+            curModel = CreateModel;
         }
+
+        if (curModel.editable.indexOf(this.props.data.category) >= 0) {
+           
+            return (
+                <View style={styles.row} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <TextInput
+                        underlineColorAndroid='transparent'
+                        style={styles.textInput}
+                        onChangeText={(text) => this._updateValue(text)}
+                        value={this.state.value + ''}
+                    />
+                </View>
+            )
+        } else if (curModel.numberonly.indexOf(this.props.data.category) >= 0) {
+            return (
+                <View style={styles.row} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <TextInput
+                        underlineColorAndroid='transparent'
+                        keyboardType='numeric'
+                        style={styles.textInput}
+                        onChangeText={(text) => this._updateNumberValue(text)}
+                        value={this.state.value + ''}
+                    />
+                </View>
+            )
+        } else if (curModel.adminSelectable.indexOf(this.props.data.category) >= 0) {
+            
+            return (
+                <TouchableOpacity style={styles.row} onPress={this._onPress} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                </TouchableOpacity>
+            )
+        }else if (curModel.selectable.indexOf(this.props.data.category) >= 0) {
+           
+            return (
+                <TouchableOpacity style={styles.row} onPress={this._onPress} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                </TouchableOpacity>
+            )
+        } else if (curModel.dateTime.indexOf(this.props.data.category) >= 0) {
+            return (
+                <TouchableOpacity style={styles.row} onPress={this._showDateTimePicker}>
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                </TouchableOpacity>
+            )
+        } else {
+            return (
+                <View style={styles.row} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                </View>
+            )
+        };
+
     }
 }
 
@@ -157,14 +174,39 @@ class CreateWorkForm extends React.Component {
         this.selectedItem = null;
     }
     _onPress = (category) => {
-        this.props.navigation.navigate('ItemSelection', { 'itemName': category, 'onSelect': this.onSelect })
+        //['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'workers'],
+        if(category==='workitem' && this.state.workCategory===""){
+            AppUtils.showToast("请先选择工作类别");
+            return;
+        }
+        if(category==='securityTools' && (this.state.isSecurityTools==="" || this.state.isSecurityTools==="否" )){
+            AppUtils.showToast("请先选择需要安全工具");
+            return;
+        }
+        if(category==='spareParts' && (this.state.isSpareParts==="" || this.state.isSpareParts==="否" )){
+            AppUtils.showToast("请先选择需要备品备件");
+            return;
+        }
+        
+        this.props.navigation.navigate('ItemSelection', { 
+            'itemName': category, 
+            'onSelect': this.onSelect 
+        })
     }
     onSelect = (data) => {
-        switch (data.category) {
-            case 'company':
-                this.setState({ 'company': data.value })
-                break
+        let nObj={};
+        if(data.category==='workCategory' && data.value!=this.state.workCategory){
+            nObj.workitem='';
         }
+        if(data.category==='isSecurityTools' && data.value!=this.state.isSecurityTools){
+            nObj.securityTools='';
+        }
+        if(data.category==='isSpareParts' && data.value!=this.state.isSpareParts){
+            nObj.spareParts='';
+        }
+      
+        nObj[data.category]=data.value;
+        this.setState(nObj);
     }
     _updateFormModel = (key, value) => {
         this.updatedFormModel[key] = value;

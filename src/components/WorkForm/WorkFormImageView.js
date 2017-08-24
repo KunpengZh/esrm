@@ -20,7 +20,7 @@ export default class WorkFormImageView extends React.Component {
         for (let i = 0; i < workDocuments.length; i++) {
             let key = 'img' + unicKey++;
             workDocuments[i]['key'] = key;
-            workDocuments[i]['filename'] = workDocuments[i]['filename'].replace("public/", "");;
+            workDocuments[i]['filename'] = workDocuments[i]['filename'].replace("public/", "");
             this.state[key] = ScreenWidth * 0.8;
         }
         this.workDocuments = workDocuments;

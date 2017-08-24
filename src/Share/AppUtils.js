@@ -60,7 +60,10 @@ var AppUtils = (function () {
         workItem: [],
         workCategory: [],
         spareParts: [],
-        securityTools: []
+        securityTools: [],
+        isSecurityTools:[{name:'是'},{name:'否'}],
+        isSpareParts:[{name:'是'},{name:'否'}],
+        sanPiaoZhiXing:[{name:'是'},{name:'否'}],
     }
 
     var setConfigDoc = function (key, value) {
@@ -76,29 +79,30 @@ var AppUtils = (function () {
                 .then((response) => response.json()).then((jsonRes) => {
                     for (let i = 0; i < jsonRes.length; i++) {
                         let category = jsonRes[i].category;
-                        switch (category) {
-                            case 'companySource':
-                                configDoc.companySource = jsonRes[i].data;
-                                break;
-                            case 'companyAdmin':
-                                configDoc.companyAdmin = jsonRes[i].data;
-                                break;
-                            case 'companyEmployee':
-                                configDoc.companyEmployee = jsonRes[i].data;
-                                break;
-                            case 'workItem':
-                                configDoc.workItem = jsonRes[i].data;
-                                break;
-                            case 'workCategory':
-                                configDoc.workCategory = jsonRes[i].data;
-                                break;
-                            case 'spareParts':
-                                configDoc.spareParts = jsonRes[i].data;
-                                break;
-                            case 'securityTools':
-                                configDoc.securityTools = jsonRes[i].data;
-                                break;
-                        }
+                        configDoc[category] = jsonRes[i].data;
+                        // switch (category) {
+                        //     case 'companySource':
+                        //         configDoc.companySource = jsonRes[i].data;
+                        //         break;
+                        //     case 'companyAdmin':
+                        //         configDoc.companyAdmin = jsonRes[i].data;
+                        //         break;
+                        //     case 'companyEmployee':
+                        //         configDoc.companyEmployee = jsonRes[i].data;
+                        //         break;
+                        //     case 'workItem':
+                        //         configDoc.workItem = jsonRes[i].data;
+                        //         break;
+                        //     case 'workCategory':
+                        //         configDoc.workCategory = jsonRes[i].data;
+                        //         break;
+                        //     case 'spareParts':
+                        //         configDoc.spareParts = jsonRes[i].data;
+                        //         break;
+                        //     case 'securityTools':
+                        //         configDoc.securityTools = jsonRes[i].data;
+                        //         break;
+                        // }
                     }
                     resolve({ status: true, message: '' });
                 }).catch((error) => {
@@ -370,6 +374,39 @@ var AppUtils = (function () {
         })
     }
 
+    /**
+     * Functions go get a new Request ID when create new Request
+     */
+
+    var newWFRequestId = function () {
+        return new Promise(function (resolve, reject) {
+            fetch(appServerURL + 'workformapi/requestid').then((response) => response.json()).then((res) => {
+                if (!res.requestId || !res.strtime) {
+                    resolve({
+                        status: 500,
+                        message: "未能从服务器取得派工单编号",
+                        data: ''
+                    })
+                } else {
+                    resolve({
+                        status: 200,
+                        message: "",
+                        data: {
+                            requestId: res.requestId,
+                            creationtime: res.strtime
+                        }
+                    })
+                }
+            }).catch((err) => {
+                showToast(err);
+                resolve({
+                    status: 500,
+                    message: "未能从服务器取得派工单编号",
+                    data: ''
+                })
+            })
+        })
+    }
 
 
     /**
@@ -394,7 +431,8 @@ var AppUtils = (function () {
         WorkFormLabel: WorkFormLabel,
         updateWorkForm: updateWorkForm,
         workformDataModel: workformDataModel,
-        imageUpload: imageUpload
+        imageUpload: imageUpload,
+        newWFRequestId:newWFRequestId
     }
 
 })()

@@ -197,7 +197,7 @@ var AppUtils = (function () {
      */
 
     var showToast = function (message, duration = "SHORT", position = Toast.positions.BOTTOM) {
-
+        
         let durationDuration = Toast.durations.SHORT;
         switch (duration.toUpperCase()) {
             case 'LONG':

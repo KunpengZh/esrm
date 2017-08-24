@@ -92,7 +92,7 @@ class WorkFormItem extends React.Component {
         }
 
         if (curModel.editable.indexOf(this.props.data.category) >= 0) {
-           
+
             return (
                 <View style={styles.row} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -118,15 +118,15 @@ class WorkFormItem extends React.Component {
                 </View>
             )
         } else if (curModel.adminSelectable.indexOf(this.props.data.category) >= 0) {
-            
+
             return (
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
                     <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
                 </TouchableOpacity>
             )
-        }else if (curModel.selectable.indexOf(this.props.data.category) >= 0) {
-           
+        } else if (curModel.selectable.indexOf(this.props.data.category) >= 0) {
+
             return (
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -174,38 +174,85 @@ class CreateWorkForm extends React.Component {
         this.selectedItem = null;
     }
     _onPress = (category) => {
+       
         //['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'workers'],
-        if(category==='workitem' && this.state.workCategory===""){
-            AppUtils.showToast("请先选择工作类别");
-            return;
-        }
-        if(category==='securityTools' && (this.state.isSecurityTools==="" || this.state.isSecurityTools==="否" )){
+        let filterValue = '';
+        let filterFieldName = '';
+        let filterable = false;
+        let multiable=false;
+
+        if (category === 'requester') {
+            if(this.state.company === ""){
+                AppUtils.showToast("请先选择工作单位");
+                return;
+            }else{
+                filterValue = this.state.company;
+                filterFieldName = 'attr';
+                filterable = true;
+            }
+        } 
+
+        if (category === 'workers') {
+            if(this.state.company === ""){
+                AppUtils.showToast("请先选择工作单位");
+                return;
+            }else{
+                filterValue = this.state.company;
+                filterFieldName = 'attr';
+                filterable = true;
+                multiable=true;
+            }
+        } 
+
+        if (category === 'workitem') {
+            if(this.state.workCategory === ""){
+                AppUtils.showToast("请先选择工作类别");
+                return;
+            }else{
+                filterValue = this.state.workCategory;
+                filterFieldName = 'workCategory';
+                filterable = true;
+            }
+        } 
+    
+        if (category === 'securityTools' && (this.state.isSecurityTools === "" || this.state.isSecurityTools === "否")) {
             AppUtils.showToast("请先选择需要安全工具");
             return;
         }
-        if(category==='spareParts' && (this.state.isSpareParts==="" || this.state.isSpareParts==="否" )){
+        if (category === 'spareParts' && (this.state.isSpareParts === "" || this.state.isSpareParts === "否")) {
             AppUtils.showToast("请先选择需要备品备件");
             return;
         }
-        
-        this.props.navigation.navigate('ItemSelection', { 
-            'itemName': category, 
-            'onSelect': this.onSelect 
+       
+        this.props.navigation.navigate('ItemSelection', {
+            'itemName': category,
+            'onSelect': this.onSelect,
+            'multiable': multiable,
+            'filterable': filterable,
+            'filter': {
+                'filterValue': filterValue,
+                'filterFieldName': filterFieldName
+            }
         })
     }
     onSelect = (data) => {
-        let nObj={};
-        if(data.category==='workCategory' && data.value!=this.state.workCategory){
-            nObj.workitem='';
+        let nObj = {};
+        if (data.category === 'workCategory' && data.value != this.state.workCategory) {
+            nObj.workitem = '';
         }
-        if(data.category==='isSecurityTools' && data.value!=this.state.isSecurityTools){
-            nObj.securityTools='';
+        if (data.category === 'isSecurityTools' && data.value != this.state.isSecurityTools) {
+            nObj.securityTools = '';
         }
-        if(data.category==='isSpareParts' && data.value!=this.state.isSpareParts){
-            nObj.spareParts='';
+        if (data.category === 'isSpareParts' && data.value != this.state.isSpareParts) {
+            nObj.spareParts = '';
         }
-      
-        nObj[data.category]=data.value;
+
+        if (data.category === 'company' && data.value != this.state.company) {
+            nObj.requester = '';
+            nObj.workers = [];
+        }
+
+        nObj[data.category] = data.value;
         this.setState(nObj);
     }
     _updateFormModel = (key, value) => {

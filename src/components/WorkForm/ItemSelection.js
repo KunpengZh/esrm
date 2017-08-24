@@ -50,63 +50,96 @@ export default class ItemSelection extends React.Component {
         })
     }
     componentDidMount() {
-        const itemName = this.props.navigation.state.params.itemName
+
+        const itemName = this.props.navigation.state.params.itemName;
+        const filterable = this.props.navigation.state.params.filterable;
+        const filter = this.props.navigation.state.params.filter;
+
         let itemSource = '';
-        if (itemName === 'workers') {
-            this.setState({ data: [], category: itemName });
-        } else {
-            switch (itemName) {
-                case 'company':
-                    itemSource = 'companySource';
-                    break;
-                case 'workCategory':
-                    itemSource = 'workCategory';
-                    break;
-                case 'workitem':
-                    itemSource = 'workItem';
-                    break;
-                case 'isSecurityTools':
-                    itemSource = 'isSecurityTools';
-                    break;
-                case 'isSpareParts':
-                    itemSource = 'isSpareParts';
-                    break;
-                case 'sanPiaoZhiXing':
-                    itemSource = 'sanPiaoZhiXing';
-                    break;
-                case 'securityTools':
-                    itemSource = 'securityTools';
-                    break;
-                case 'spareParts':
-                    itemSource = 'spareParts';
-                    break;
-            }
 
-            if (itemSource === '') {
-                AppUtils.showToast("没有所需要的配置选项");
-                return;
-            }
+        switch (itemName) {
+            case 'company':
+                itemSource = 'companySource';
+                break;
+            case 'workCategory':
+                itemSource = 'workCategory';
+                break;
+            case 'workitem':
+                itemSource = 'workItem';
+                break;
+            case 'isSecurityTools':
+                itemSource = 'isSecurityTools';
+                break;
+            case 'isSpareParts':
+                itemSource = 'isSpareParts';
+                break;
+            case 'sanPiaoZhiXing':
+                itemSource = 'sanPiaoZhiXing';
+                break;
+            case 'securityTools':
+                itemSource = 'securityTools';
+                break;
+            case 'spareParts':
+                itemSource = 'spareParts';
+                break;
+            case 'requester':
+                itemSource = 'companyAdmin'
+                break;
+            case 'workers':
+                itemSource = 'companyEmployee'
+                break;
+        }
 
-            this._getConfigDataSource(itemSource).then((res) => {
-                console.log(res);
+        if (itemSource === '') {
+            AppUtils.showToast("没有所需要的配置选项");
+            return;
+        }
+
+        this._getConfigDataSource(itemSource).then((res) => {
+            let dataSource = [];
+            if (filterable) {
                 for (let i = 0; i < res.length; i++) {
-                    res[i]['key'] = i;
+                    if (res[i][filter.filterFieldName] === filter.filterValue) {
+                        let obj = res[i];
+                        obj.key = i;
+                        obj.selected = false;
+                        dataSource.push(obj);
+                    }
                 }
-                
-                this.setState({ data: res, category: itemName })
-            })
+            } else {
+                dataSource = res;
+                for (let i = 0; i < dataSource.length; i++) {
+                    dataSource[i]['key'] = i;
+                    dataSource[i]['selected'] = false;
+                }
+            }
+
+            this.setState({ data: dataSource, category: itemName })
+        })
+
+    }
+    _onPressItem = (itemValue, itemKey) => {
+        if (this.props.navigation.state.params.multiable) {
+           
+            let newState = this.state.data;
+            for (let i = 0; i < newState.length; i++) {
+             
+                if (newState[i]['key'] === itemKey) {
+                    newState[i]['selected'] = !newState[i]['selected'];
+                }
+            }
+            this.setState(newState);
+        } else {
+            this.props.navigation.goBack(null)
+            this.props.navigation.state.params.onSelect({ value: itemValue, category: this.state.category });
         }
     }
-    _onPressItem = (itemValue) => {
-        this.props.navigation.goBack(null)
-        this.props.navigation.state.params.onSelect({ value: itemValue, category: this.state.category });
-    }
     render() {
-
         return (
             <View style={styles.container}>
                 <FlatList
                     data={this.state.data}
+                    extraData={this.state}
                     renderItem={({ item }) => {
                         return (
                             <SelectableItem data={item} onPressItem={this._onPressItem} />
@@ -120,18 +153,34 @@ export default class ItemSelection extends React.Component {
 
 class SelectableItem extends React.Component {
     _onPress = () => {
-        this.props.onPressItem(this.props.data.name);
+        this.props.onPressItem(this.props.data.name, this.props.data.key);
     };
     render() {
-        return (
-            <TouchableOpacity onPress={this._onPress}>
-                <Text style={styles.itemContent}>{this.props.data.name}</Text>
-            </TouchableOpacity>
-        );
+        if (this.props.data.selected) {
+            return (
+                <TouchableOpacity onPress={this._onPress}>
+                    <Text style={styles.itemContentSelected}>{this.props.data.name}</Text>
+                </TouchableOpacity>
+            );
+        } else {
+            return (
+                <TouchableOpacity onPress={this._onPress}>
+                    <Text style={styles.itemContent}>{this.props.data.name}</Text>
+                </TouchableOpacity>
+            );
+        }
     }
 }
 
 const styles = StyleSheet.create({
+    itemContentSelected: {
+        height: 50,
+        padding: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: '#E5E4E2',
+        backgroundColor: '#4863A0',
+        color: "#FFF"
+    },
     itemContent: {
         height: 50,
         padding: 15,

@@ -189,9 +189,8 @@ export default StackNavigator({
     CreateWorkForm: {
         screen: CreateWorkForm,
         navigationOptions: ({ navigation }) => ({
-            //headerTitle: 'Create New WorkForm',
-            // headerStyle: styles.headerStyle,
-            //headerTitleStyle: styles.headerTitleStyle
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
         }),
     },
     CreateUrgentWorkForm: {

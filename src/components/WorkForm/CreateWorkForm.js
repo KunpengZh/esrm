@@ -29,13 +29,17 @@ const EditModel = {
     'editable': ['worklocation', 'workcomments'],
     'selectable': [],
     'numberonly': ['workhour'],
+    'multiSelectable': [],
+    'multiText': ['securityTools', 'spareParts', 'workers'],
     'dateTime': ['returntime']
 };
 const CreateModel = {
     'adminSelectable': ['company', 'requester'],
     'editable': ['worklocation', 'workcomments'],
-    'selectable': ['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'workers'],
+    'selectable': ['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing'],
+    'multiSelectable': ['securityTools', 'spareParts', 'workers'],
     'numberonly': ['workhour'],
+    'multiText': [],
     'dateTime': ['planreturntime', 'returntime']
 };
 
@@ -133,6 +137,46 @@ class WorkFormItem extends React.Component {
                     <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
                 </TouchableOpacity>
             )
+        } else if (curModel.multiText.indexOf(this.props.data.category) >= 0) {
+            let mData = this.props.data.data;
+            let value = '';
+            if (mData instanceof Array) {
+                for (let i = 0; i < mData.length; i++) {
+                    if (value === '') {
+                        value = mData[i]
+                    } else {
+                        value += ' , ' + mData[i];
+                    }
+                }
+            } else {
+                value = mData;
+            }
+            return (
+                <View style={styles.row} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{value}</Text>
+                </View>
+            )
+        } else if (curModel.multiSelectable.indexOf(this.props.data.category) >= 0) {
+            let mData = this.props.data.data;
+            let value = '';
+            if (mData instanceof Array) {
+                for (let i = 0; i < mData.length; i++) {
+                    if (value === '') {
+                        value = mData[i]
+                    } else {
+                        value += ' , ' + mData[i];
+                    }
+                }
+            } else {
+                value = mData;
+            }
+            return (
+                <TouchableOpacity style={styles.row} onPress={this._onPress} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{value}</Text>
+                </TouchableOpacity>
+            )
         } else if (curModel.dateTime.indexOf(this.props.data.category) >= 0) {
             return (
                 <TouchableOpacity style={styles.row} onPress={this._showDateTimePicker}>
@@ -174,56 +218,63 @@ class CreateWorkForm extends React.Component {
         this.selectedItem = null;
     }
     _onPress = (category) => {
-       
+
         //['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'workers'],
         let filterValue = '';
         let filterFieldName = '';
         let filterable = false;
-        let multiable=false;
+        let multiable = false;
 
         if (category === 'requester') {
-            if(this.state.company === ""){
+            if (this.state.company === "") {
                 AppUtils.showToast("请先选择工作单位");
                 return;
-            }else{
+            } else {
                 filterValue = this.state.company;
                 filterFieldName = 'attr';
                 filterable = true;
             }
-        } 
+        }
 
         if (category === 'workers') {
-            if(this.state.company === ""){
+            if (this.state.company === "") {
                 AppUtils.showToast("请先选择工作单位");
                 return;
-            }else{
+            } else {
                 filterValue = this.state.company;
                 filterFieldName = 'attr';
                 filterable = true;
-                multiable=true;
+                multiable = true;
             }
-        } 
+        }
 
         if (category === 'workitem') {
-            if(this.state.workCategory === ""){
+            if (this.state.workCategory === "") {
                 AppUtils.showToast("请先选择工作类别");
                 return;
-            }else{
+            } else {
                 filterValue = this.state.workCategory;
                 filterFieldName = 'workCategory';
                 filterable = true;
             }
-        } 
-    
-        if (category === 'securityTools' && (this.state.isSecurityTools === "" || this.state.isSecurityTools === "否")) {
-            AppUtils.showToast("请先选择需要安全工具");
-            return;
         }
-        if (category === 'spareParts' && (this.state.isSpareParts === "" || this.state.isSpareParts === "否")) {
-            AppUtils.showToast("请先选择需要备品备件");
-            return;
+
+        if (category === 'securityTools') {
+            if (this.state.isSecurityTools === "" || this.state.isSecurityTools === "否") {
+                AppUtils.showToast("请先选择需要安全工具");
+                return;
+            } else {
+                multiable = true;
+            }
         }
-       
+        if (category === 'spareParts') {
+            if (this.state.isSpareParts === "" || this.state.isSpareParts === "否") {
+                AppUtils.showToast("请先选择需要备品备件");
+                return;
+            } else {
+                multiable = true;
+            }
+        }
         this.props.navigation.navigate('ItemSelection', {
             'itemName': category,
             'onSelect': this.onSelect,
@@ -253,6 +304,14 @@ class CreateWorkForm extends React.Component {
         }
 
         nObj[data.category] = data.value;
+
+        /**
+         * To update the worknumbers
+         */
+        if (data.category === 'workers') {
+            nObj.workersnumber = data.value.length;
+        }
+
         this.setState(nObj);
     }
     _updateFormModel = (key, value) => {
@@ -565,8 +624,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     headerStyle: {
-        backgroundColor: "#98AFC7",
-        height: 30,
+        height: 35,
     },
     headerTitleStyle: {
         fontSize: 12, // 文字大小
@@ -592,7 +650,7 @@ export default StackNavigator({
         }),
     },
 }, {
-        headerMode: 'none',
         mode: 'modal',
+        headerMode: 'none'
     })
 

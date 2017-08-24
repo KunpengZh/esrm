@@ -19,20 +19,35 @@ export default class ItemSelection extends React.Component {
             label = AppUtils.WorkFormLabel[navigation.state.params.itemName];
             label = label.replace(":", "");
         }
-        return ({
-            headerTitle: '请选择 - ' + label,
-            headerRight:
-            <TouchableOpacity onPress={() => params.onMultiSelectionConfirm(navigation)}>
-                <FontAwesome name="check-circle" style={styles.headericon} />
-            </TouchableOpacity>,
-            headerLeft:
-            <TouchableOpacity onPress={() => navigation.goBack()}>
-                <FontAwesome name="arrow-circle-left" style={styles.headericon} />
-            </TouchableOpacity>
+        if (params.multiable) {
+            return ({
+                headerTitle: '请选择 - ' + label,
+                headerRight: () => {
+                    let _onPress = () => {
+                        console.log("righ press");
+                    };
+                    return (
+                        <TouchableOpacity onPress={_onPress}>
+                            <FontAwesome name="save" style={styles.headericon} />
+                        </TouchableOpacity>
+                    )
+                },
+                headerLeft: <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                </TouchableOpacity>
+            })
+        } else {
+            return ({
+                headerTitle: '请选择 - ' + label,
+                headerLeft: <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                </TouchableOpacity>
+            })
+        }
 
-        })
     };
     constructor(props) {
+        console.log("constructore")
         super(props)
         this.state = {
             showFullScreenLoading: false,
@@ -40,7 +55,6 @@ export default class ItemSelection extends React.Component {
             category: ''
         }
     }
-
     _getConfigDataSource(itemName) {
         let self = this;
         return new Promise(function (resolve, reject) {
@@ -61,21 +75,7 @@ export default class ItemSelection extends React.Component {
             }
         })
     }
-    _onMultiSelectionConfirm = () => {
-        let selectedItems = [];
-        let oState = this.state.data;
-        for (let i = 0; i < oState.length; i++) {
-            if (oState[i].selected) {
-                selectedItems.push(oState[i].name);
-            }
-        }
-        this.props.navigation.goBack(null);
-        this.props.navigation.state.params.onSelect({ value: selectedItems, category: this.state.category });
-    }
     componentDidMount() {
-        this.props.navigation.setParams({
-            onMultiSelectionConfirm: this._onMultiSelectionConfirm.bind(this),
-        });
 
         const itemName = this.props.navigation.state.params.itemName;
         const filterable = this.props.navigation.state.params.filterable;
@@ -154,7 +154,7 @@ export default class ItemSelection extends React.Component {
                     newState[i]['selected'] = !newState[i]['selected'];
                 }
             }
-            this.setState({ data: newState });
+            this.setState(newState);
         } else {
             this.props.navigation.goBack(null)
             this.props.navigation.state.params.onSelect({ value: itemValue, category: this.state.category });
@@ -199,14 +199,6 @@ class SelectableItem extends React.Component {
 }
 
 const styles = StyleSheet.create({
-    headericon: {
-        fontSize: 22,
-        //color: "#157DEC",
-        paddingRight: 10,
-        paddingLeft: 10,
-        color: "#3BB9FF"
-        //color:"#1589FF"
-    },
     itemContentSelected: {
         height: 50,
         padding: 15,
@@ -225,6 +217,14 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: 'white'
+    },
+    headericon: {
+        fontSize: 22,
+        //color: "#157DEC",
+        paddingRight: 10,
+        paddingLeft: 10,
+        color: "#3BB9FF"
+        //color:"#1589FF"
     },
 
 })

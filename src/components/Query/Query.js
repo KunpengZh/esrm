@@ -1,77 +1,95 @@
-
 import React from 'react';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import {
-    Text,
     View,
-    Button,
-    StyleSheet
+    Image,
+    StyleSheet,
+    TouchableOpacity,
+    Text,
+    Button
 } from 'react-native';
-
 import { StackNavigator } from 'react-navigation';
 
-class MyHomeScreen extends React.Component {
-    static navigationOptions = {
-        drawerLabel: 'Home',
-    };
 
-    render() {
-        return (
-            <Button
-                onPress={() => this.props.navigation.navigate('Notifications')}
-                title="Go to notifications"
-            />
-        );
+import AppUtils from '../../Share/AppUtils'
+import FullScreenLoading from '../ShareComments/FullScreenLoading';
+
+
+class Query extends React.Component {
+    static navigationOptions = ({ navigation }) => {
+        const { params = {} } = navigation.state;
+        return {
+            headerRight: <TouchableOpacity style={styles.topMenuContainer} onPress={() => params.queryByWorkForm()}>
+                <FontAwesome name="list-alt" style={styles.headericon} />
+                <Text style={styles.topMenuButton}>按工单汇总</Text>
+            </TouchableOpacity>,
+            headerLeft: <TouchableOpacity style={styles.topMenuContainer} onPress={() => params.queyryByWorker()}>
+                <FontAwesome name="user-circle-o" style={styles.headericon} />
+                <Text style={styles.topMenuButton}>按工作人员汇总</Text>
+            </TouchableOpacity>
+        };
+    };
+    _queyryByWorker=()=>{
+        console.log("query by worker")
     }
-}
-
-class MyNotificationsScreen extends React.Component {
-    static navigationOptions = {
-        drawerLabel: 'Notifications',
-    };
-
+    _queryByWorkForm=()=>{
+        console.log('query by work form')
+    }
+    componentDidMount() {
+        this.props.navigation.setParams({ 
+            queryByWorkForm: this._queryByWorkForm.bind(this), 
+            queyryByWorker: this._queyryByWorker.bind(this) });
+    }
     render() {
         return (
-            <Button
-                onPress={() => this.props.navigation.goBack()}
-                title="Go back home"
-            />
-        );
+            <View style={styles.container}>
+
+            </View>
+        )
     }
 }
 
 const styles = StyleSheet.create({
-    icon: {
-        width: 24,
-        height: 24,
+    topMenuButton: {
+        color: "#3BB9FF",
+        fontSize: 12,
+        marginRight: 10
+    },
+    topMenuContainer: {
+        flexDirection: 'row',
+        alignItems: 'center'
+    },
+    container: {
+        flex: 1,
+    },
+    headericon: {
+        fontSize: 22,
+        //color: "#157DEC",
+        paddingRight: 10,
+        paddingLeft: 10,
+        color: "#3BB9FF"
+        //color:"#1589FF"
     },
     headerStyle: {
-        backgroundColor: "#98AFC7",
-        height: 30,
+        //backgroundColor: "#98AFC7",
+        height: 35,
     },
     headerTitleStyle: {
         fontSize: 12, // 文字大小
     }
-});
 
+})
 export default StackNavigator({
-    Home: {
-        screen: MyHomeScreen,
+    QueryMain: {
+        screen: Query,
         navigationOptions: ({ navigation }) => ({
-            headerTitle: 'MyHomeScreen',
+            headerTitle: '',
             headerStyle: styles.headerStyle,
             headerTitleStyle: styles.headerTitleStyle
         }),
     },
-    Notifications: {
-        screen: MyNotificationsScreen,
-        navigationOptions: ({ navigation }) => ({
-            headerTitle: 'Notifictainos',
-            headerStyle: styles.headerStyle,
-            headerTitleStyle: styles.headerTitleStyle
-        }),
-    },
+
 }, {
-        drawerPosition: "left",
-        drawerWidth: 10
+        //headerMode: "none",
+
     })

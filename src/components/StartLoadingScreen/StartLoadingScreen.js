@@ -17,12 +17,13 @@ export default class Loading extends Component {
         this.state = {
             modalVisible: true,
         };
+        AppUtils.setRootNavigation(this.props.navigation);
         AppUtils.isUserLoggedIn().then((isUserLoggedIn) => {
             this.hideLoading();
             if (isUserLoggedIn) {
                 this.props.navigation.navigate('MainNavigate')
             } else {
-                this.props.navigation.navigate('Login')
+                this.props.navigation.navigate('Login', {isMainLogin:true})
             }
         }).catch((err) => {
             this.hideLoading()

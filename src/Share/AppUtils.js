@@ -9,6 +9,19 @@ var AppUtils = (function () {
     var appServerURL = "http://120.77.170.133/"
     //var appServerURL = "http://192.168.0.100/"
 
+    /**
+     * Define a variable to keep the root navigation
+     */
+
+    var rootNavigation = null;
+
+    var setRootNavigation = function (navigation) {
+        rootNavigation = navigation;
+    }
+    var getRootNavigation = function () {
+        return rootNavigation;
+    }
+
     var getAppServerURL = function () {
         return appServerURL;
     }
@@ -61,9 +74,9 @@ var AppUtils = (function () {
         workCategory: [],
         spareParts: [],
         securityTools: [],
-        isSecurityTools:[{name:'是'},{name:'否'}],
-        isSpareParts:[{name:'是'},{name:'否'}],
-        sanPiaoZhiXing:[{name:'是'},{name:'否'}],
+        isSecurityTools: [{ name: '是' }, { name: '否' }],
+        isSpareParts: [{ name: '是' }, { name: '否' }],
+        sanPiaoZhiXing: [{ name: '是' }, { name: '否' }],
     }
 
     var setConfigDoc = function (key, value) {
@@ -77,14 +90,21 @@ var AppUtils = (function () {
         return new Promise(function (resolve, reject) {
             fetch(appServerURL + 'esrvapi/getallconfigdoc')
                 .then((response) => response.json()).then((jsonRes) => {
+                    if (jsonRes.hasOwnProperty('err')) {
+                        resolve({
+                            status: 700,
+                            message: "好像还木有登陆",
+                            data: null
+                        })
+                    }
                     for (let i = 0; i < jsonRes.length; i++) {
                         let category = jsonRes[i].category;
                         configDoc[category] = jsonRes[i].data;
                     }
-                    resolve({ status: true, message: '' });
+                    resolve({ status: 200, message: '' });
                 }).catch((error) => {
                     console.error(error);
-                    reslove({ status: false, message: "Unable to load config data from Server" })
+                    reslove({ status: 500, message: "Unable to load config data from Server" })
                 });
         })
     }
@@ -174,7 +194,7 @@ var AppUtils = (function () {
      */
 
     var showToast = function (message, duration = "SHORT", position = Toast.positions.BOTTOM) {
-        
+
         let durationDuration = Toast.durations.SHORT;
         switch (duration.toUpperCase()) {
             case 'LONG':
@@ -211,13 +231,24 @@ var AppUtils = (function () {
         return new Promise(function (resolve, reject) {
             if (appUser.isAuthenticated) {
                 fetch(appServerURL + 'workformapi/getr').then((response) => response.json()).then((responseJson) => {
-
-                    resolve({ status: true, message: '', data: responseJson })
+                    if (responseJson.hasOwnProperty('err')) {
+                        resolve({
+                            status: 700,
+                            message: "好像还木有登陆",
+                            data: null
+                        })
+                    }
+                    resolve({ status: 200, message: '', data: responseJson })
                 }).catch((err) => {
-                    resolve({ status: false, message: "Network request failed", data: [] })
+                    console.log(err);
+                    resolve({ status: 500, message: "Network request failed", data: [] })
                 })
             } else {
-                resolve({ status: false, message: 'User Not Logged In', data: [] })
+                resolve({
+                    status: 700,
+                    message: "好像还木有登陆",
+                    data: null
+                })
             }
 
         })
@@ -289,10 +320,19 @@ var AppUtils = (function () {
                     data: workFormData
                 })
             }).then((response) => response.json()).then((res) => {
+
+                if (res.hasOwnProperty('err')) {
+                    resolve({
+                        status: 700,
+                        message: "好像还木有登陆",
+                        data: null
+                    })
+                }
+
                 if (res.requestId) {
                     resolve({ "message": "保存成功", status: 200, data: res });
                 } else {
-                    resolve({ "message": "保存失败", status: 500, data: '' });
+                    resolve({ "message": res.message, status: 500, data: '' });
 
                 }
             }).catch((err) => {
@@ -329,6 +369,15 @@ var AppUtils = (function () {
             };
 
             fetch(appServerURL + 'workformapi/upload', fetchOptions).then((response) => response.json()).then((res) => {
+
+                if (res.hasOwnProperty('err')) {
+                    resolve({
+                        status: 700,
+                        message: "好像还木有登陆",
+                        data: null
+                    })
+                }
+
                 if (res && res.length > 0) {
                     res = res[0];
                     resolve({
@@ -358,6 +407,15 @@ var AppUtils = (function () {
     var newWFRequestId = function () {
         return new Promise(function (resolve, reject) {
             fetch(appServerURL + 'workformapi/requestid').then((response) => response.json()).then((res) => {
+
+                if (res.hasOwnProperty('err')) {
+                    resolve({
+                        status: false,
+                        message: "好像还木有登陆",
+                        data: 700
+                    })
+                }
+
                 if (!res.requestId || !res.strtime) {
                     resolve({
                         status: 500,
@@ -409,7 +467,9 @@ var AppUtils = (function () {
         updateWorkForm: updateWorkForm,
         workformDataModel: workformDataModel,
         imageUpload: imageUpload,
-        newWFRequestId:newWFRequestId
+        newWFRequestId: newWFRequestId,
+        setRootNavigation: setRootNavigation,
+        getRootNavigation: getRootNavigation
     }
 
 })()

@@ -49,11 +49,12 @@ export default class ItemSelection extends React.Component {
                 self.setState({ showFullScreenLoading: true });
                 AppUtils.loadingConfigData().then((res) => {
                     self.setState({ showFullScreenLoading: false });
-                    if (!res.status) {
-                        AppUtils.showToast(res.message);
-                        resolve([])
-                    } else {
+                    if (res.status===200) {
                         resolve(AppUtils.getConfigItem(itemName));
+                    }else if(res.status===700){
+                        AppUtils.showToast(res.message);
+                        AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
+                        resolve([])
                     }
                 })
             } else {

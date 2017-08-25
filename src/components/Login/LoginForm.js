@@ -9,20 +9,24 @@ export default class LoginForm extends Component {
         super(props)
         this.state = {
             showFullScreenLoading: false,
-            username:'',
-            password:''
+            username: '',
+            password: ''
         }
     }
     doAppLogin() {
-        if(this.state.username==='' || this.state.password==="") {
+        if (this.state.username === '' || this.state.password === "") {
             AppUtils.showToast("请输入用户名和密码");
             return;
         }
         this.setState({ showFullScreenLoading: true });
-        AppUtils.appLogin(this.state.username,this.state.password).then((jsonRes) => {
+        AppUtils.appLogin(this.state.username, this.state.password).then((jsonRes) => {
             this.setState({ showFullScreenLoading: false });
             if (jsonRes.isAuthenticated) {
-                this.props.navigation.navigate('MainNavigate')
+                if(this.props.isMainLogin){
+                    this.props.navigation.navigate('MainNavigate')
+                }else{
+                    this.props.navigation.goBack();
+                }
             } else {
                 AppUtils.showToast(jsonRes.message);
             }
@@ -40,7 +44,7 @@ export default class LoginForm extends Component {
                     placeholderTextColor="rgba(255,255,255,0.7)"
                     underlineColorAndroid='transparent'
                     style={styles.textInput}
-                    onChangeText={(username) => this.setState({username:username })}
+                    onChangeText={(username) => this.setState({ username: username })}
                     value={this.state.username}
                 />
                 <TextInput
@@ -49,7 +53,7 @@ export default class LoginForm extends Component {
                     placeholderTextColor="rgba(255,255,255,0.7)"
                     underlineColorAndroid='transparent'
                     style={styles.textInput}
-                    onChangeText={(password) => this.setState({password:password })}
+                    onChangeText={(password) => this.setState({ password: password })}
                     value={this.state.password}
                 />
                 <TouchableOpacity

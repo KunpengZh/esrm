@@ -349,6 +349,8 @@ class CreateWorkForm extends React.Component {
                 if (res.status === 200) {
                     this.props.navigation.state.params.reLoadingWorkFormList();
                     this._goBack();
+                }else if(res.status===700){
+                    AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
                 }
             }).catch((err) => {
                 this.setState({ showFullScreenLoading: false });
@@ -394,6 +396,8 @@ class CreateWorkForm extends React.Component {
             if (res.status === 200) {
                 this.props.navigation.state.params.reLoadingWorkFormList();
                 this._goBack();
+            }else if (res.status===700){
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
             }
         }).catch((err) => {
             this.setState({ showFullScreenLoading: false });
@@ -401,7 +405,6 @@ class CreateWorkForm extends React.Component {
         })
     }
     validateWorkForm(workFormData) {
-        console.log(workFormData);
         if (workFormData.company === "") {
             AppUtils.showToast("派工单位不能为空");
             return false;
@@ -518,7 +521,8 @@ class CreateWorkForm extends React.Component {
                     if (res.status === 200) {
                         this.props.navigation.state.params.updateWorkFormList(res.data);
                         this.setState(res.data);
-                        //this._goBack();
+                    }else if(res.status===700){
+                        AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
                     }
                 }).catch((err) => {
                     this.setState({ showFullScreenLoading: false });

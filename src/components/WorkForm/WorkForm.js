@@ -16,6 +16,7 @@ import AppUtils from '../../Share/AppUtils'
 import WorkFformList from './WorkFormList'
 import FullScreenLoading from '../ShareComments/FullScreenLoading';
 
+
 class WorkFormHome extends React.Component {
     constructor(props) {
         super(props)
@@ -23,9 +24,18 @@ class WorkFormHome extends React.Component {
             workFormsList: [],
             showFullScreenLoading: true
         }
+
+    }
+    componentDidMount() {
+
         AppUtils.getOpenWorkForms().then((res) => {
-            if (res.status) {
+
+            if (res.status === 200) {
                 this.setState({ workFormsList: res.data, showFullScreenLoading: false })
+            } else if (res.status === 700) {
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.showToast(res.message);
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
             } else {
                 this.setState({ showFullScreenLoading: false })
                 AppUtils.showToast(res.message)
@@ -45,8 +55,12 @@ class WorkFormHome extends React.Component {
     _reLoadingWorkFormList = () => {
         this.setState({ showFullScreenLoading: false });
         AppUtils.getOpenWorkForms().then((res) => {
-            if (res.status) {
+            if (res.status === 200) {
                 this.setState({ workFormsList: res.data, showFullScreenLoading: false })
+            } else if (res.status === 700) {
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.showToast(res.message);
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
             } else {
                 this.setState({ showFullScreenLoading: false })
                 AppUtils.showToast(res.message)
@@ -74,7 +88,7 @@ class WorkFormHome extends React.Component {
         }
     }
     _createNewWorkForm = () => {
-        let self=this;
+        let self = this;
         let data = {
             requestId: "",
             company: "",
@@ -99,6 +113,7 @@ class WorkFormHome extends React.Component {
         };
 
         AppUtils.newWFRequestId().then((res) => {
+
             if (res.status === 200) {
                 data.requestId = res.data.requestId;
                 data.creationtime = res.data.creationtime
@@ -108,6 +123,10 @@ class WorkFormHome extends React.Component {
                     updateWorkFormList: self._updateWorkFormList,
                     reLoadingWorkFormList: self._reLoadingWorkFormList
                 })
+            } else if (res.status === 700) {
+                AppUtils.showToast(res.message);
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
+
             } else {
                 AppUtils.showToast(res.message);
                 return;

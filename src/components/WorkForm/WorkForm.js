@@ -111,9 +111,9 @@ class WorkFormHome extends React.Component {
             isSecurityTools: "",
             sanPiaoZhiXing: "",
         };
-
+        this.setState({ showFullScreenLoading: true });
         AppUtils.newWFRequestId().then((res) => {
-
+            this.setState({ showFullScreenLoading: false });
             if (res.status === 200) {
                 data.requestId = res.data.requestId;
                 data.creationtime = res.data.creationtime
@@ -132,6 +132,7 @@ class WorkFormHome extends React.Component {
                 return;
             }
         }).catch((err) => {
+            this.setState({ showFullScreenLoading: false });
             AppUtils.showToast(err);
             return;
         })
@@ -190,7 +191,7 @@ const styles = StyleSheet.create({
     },
     headerStyle: {
         //backgroundColor: "#98AFC7",
-        height: 35,
+        height: 40,
     },
     headerTitleStyle: {
         fontSize: 12, // 文字大小
@@ -209,6 +210,7 @@ export default StackNavigator({
     CreateWorkForm: {
         screen: CreateWorkForm,
         navigationOptions: ({ navigation }) => ({
+            headerTitle: 'Create - ' + navigation.state.params.workFormData.requestId,
             headerTitleStyle: styles.headerTitleStyle,
             headerStyle: styles.headerStyle,
         }),

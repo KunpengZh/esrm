@@ -204,7 +204,7 @@ class CreateWorkForm extends React.Component {
             headerRight: <TouchableOpacity onPress={() => params.handleSave()}>
                 <FontAwesome name="save" style={styles.headericon} />
             </TouchableOpacity>,
-            headerLeft: <TouchableOpacity onPress={() => params.goBack()}>
+            headerLeft: <TouchableOpacity onPress={() => params.goBack(null)}>
                 <FontAwesome name="arrow-circle-left" style={styles.headericon} />
             </TouchableOpacity>
         };
@@ -638,7 +638,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     headerStyle: {
-        height: 35,
+        height: 40,
     },
     headerTitleStyle: {
         fontSize: 12, // 文字大小
@@ -658,9 +658,8 @@ export default StackNavigator({
     ItemSelection: {
         screen: ItemSelection,
         navigationOptions: ({ navigation }) => ({
-            //headerTitle: 'Create New WorkForm',
-            // headerStyle: styles.headerStyle,
-            // headerTitleStyle: styles.headerTitleStyle
+            headerStyle: styles.headerStyle,
+            headerTitleStyle: styles.headerTitleStyle
         }),
     },
 }, {

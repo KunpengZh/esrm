@@ -26,7 +26,7 @@ export default class ItemSelection extends React.Component {
                 <FontAwesome name="check-circle" style={styles.headericon} />
             </TouchableOpacity>,
             headerLeft:
-            <TouchableOpacity onPress={() => navigation.goBack()}>
+            <TouchableOpacity onPress={() => navigation.goBack(null)}>
                 <FontAwesome name="arrow-circle-left" style={styles.headericon} />
             </TouchableOpacity>
 
@@ -134,13 +134,22 @@ export default class ItemSelection extends React.Component {
                     }
                 }
             } else {
-                dataSource = res;
+                for(let i=0;i<res.length;i++){
+                    dataSource.push(res[i]);
+                }
                 for (let i = 0; i < dataSource.length; i++) {
                     dataSource[i]['key'] = i;
                     dataSource[i]['selected'] = false;
                 }
             }
 
+            if(this.props.navigation.state.params.toAddAll){
+                dataSource.push({
+                    name:'All',
+                    key:res.length,
+                    selected:false
+                })
+             }
             this.setState({ data: dataSource, category: itemName })
         })
 
@@ -164,6 +173,7 @@ export default class ItemSelection extends React.Component {
     render() {
         return (
             <View style={styles.container}>
+                <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 <FlatList
                     data={this.state.data}
                     extraData={this.state}
@@ -214,14 +224,16 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#E5E4E2',
         backgroundColor: '#4863A0',
-        color: "#FFF"
+        color: "#FFF",
+        fontSize:12,
     },
     itemContent: {
         height: 50,
         padding: 15,
         borderBottomWidth: 1,
         borderBottomColor: '#E5E4E2',
-        color: "#000"
+        color: "#000",
+        fontSize:12,
     },
     container: {
         flex: 1,

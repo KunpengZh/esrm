@@ -25,7 +25,7 @@ export default class LoginForm extends Component {
                 if(this.props.isMainLogin){
                     this.props.navigation.navigate('MainNavigate')
                 }else{
-                    this.props.navigation.goBack();
+                    this.props.navigation.goBack(null);
                 }
             } else {
                 AppUtils.showToast(jsonRes.message);

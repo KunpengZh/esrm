@@ -410,9 +410,9 @@ var AppUtils = (function () {
 
                 if (res.hasOwnProperty('err')) {
                     resolve({
-                        status: false,
+                        status: 700,
                         message: "好像还木有登陆",
-                        data: 700
+                        data: ''
                     })
                 }
 
@@ -443,6 +443,78 @@ var AppUtils = (function () {
         })
     }
 
+    /**
+     * Query base on provided criteria
+     */
+    var queryByWorkForm = function (criteria) {
+        return new Promise(function (resolve, reject) {
+            let url = 'queryWorkForm/workform';
+            queryWorkForm(criteria, url).then((res) => {
+                workFormQueryResult = res;
+                resolve(res);
+            });
+        })
+    }
+    var queryByWoker = function (criteria) {
+        return new Promise(function (resolve, reject) {
+            let url = 'queryWorkForm/worker';
+            queryWorkForm(criteria, url).then((res) => {
+                workerWorkerQueryResult = res;
+                resolve(res);
+            });
+        })
+
+    }
+
+    var queryWorkForm = function (criteria, url) {
+        return new Promise(function (resolve, reject) {
+            var self = this;
+            fetch(appServerURL + url, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36',
+                    'Host': 'esrm.xianxian.com'
+                },
+                body: JSON.stringify({
+                    data: criteria
+                })
+            }).then((response) => response.json()).then((res) => {
+           
+                if (res.hasOwnProperty('err')) {
+                    resolve({
+                        status: 700,
+                        message: "好像还木有登陆",
+                        data: ''
+                    })
+                }
+                resolve({
+                    status: 200,
+                    message: '',
+                    data: res
+                })
+            }).catch(function (err) {
+                console.log(err);
+                resolve({
+                    status: 500,
+                    message: err,
+                    data: ''
+                })
+            })
+        })
+    }
+
+    var workFormQueryResult = [];
+    var workerWorkerQueryResult = [];
+
+    var getWorkFormQueryResult = function () {
+        return workFormQueryResult;
+    }
+    var getWorkerWorkFormQueryResult = function () {
+        return workerWorkerQueryResult;
+    }
+
 
     /**
      * Return the object will be export from App Utils
@@ -469,7 +541,11 @@ var AppUtils = (function () {
         imageUpload: imageUpload,
         newWFRequestId: newWFRequestId,
         setRootNavigation: setRootNavigation,
-        getRootNavigation: getRootNavigation
+        getRootNavigation: getRootNavigation,
+        getWorkFormQueryResult: getWorkFormQueryResult,
+        getWorkerWorkFormQueryResult: getWorkerWorkFormQueryResult,
+        queryByWoker: queryByWoker,
+        queryByWorkForm: queryByWorkForm
     }
 
 })()

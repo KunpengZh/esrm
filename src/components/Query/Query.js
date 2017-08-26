@@ -19,6 +19,7 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import ViewResultCategory from './ViewResultCategory'
 import DetailList from './DetailList'
+import OpenWorkForm from '../WorkForm/CreateWorkForm'
 
 
 class Query extends React.Component {
@@ -430,6 +431,15 @@ export default StackNavigator({
             headerTitleStyle: styles.headerTitleStyle
         }),
     },
+    OpenWorkForm: {
+        screen: OpenWorkForm,
+        navigationOptions: ({ navigation }) => ({
+            headerTitle: 'WorkForm - ' + navigation.state.params.workFormData.requestId,
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
+            //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
+        })
+    }
 
 }, {
         //headerMode: "none",

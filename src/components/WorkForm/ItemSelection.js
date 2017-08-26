@@ -19,18 +19,27 @@ export default class ItemSelection extends React.Component {
             label = AppUtils.WorkFormLabel[navigation.state.params.itemName];
             label = label.replace(":", "");
         }
-        return ({
-            headerTitle: '请选择 - ' + label,
-            headerRight:
-            <TouchableOpacity onPress={() => params.onMultiSelectionConfirm(navigation)}>
-                <FontAwesome name="check-circle" style={styles.headericon} />
-            </TouchableOpacity>,
-            headerLeft:
-            <TouchableOpacity onPress={() => navigation.goBack(null)}>
-                <FontAwesome name="arrow-circle-left" style={styles.headericon} />
-            </TouchableOpacity>
+        if (navigation.state.params.multiable) {
+            return ({
+                headerTitle: '请选择 - ' + label,
+                headerRight: <TouchableOpacity onPress={() => params.onMultiSelectionConfirm(navigation)}>
+                    <FontAwesome name="check-circle" style={styles.headericon} />
+                </TouchableOpacity>,
+                headerLeft: <TouchableOpacity onPress={() => navigation.goBack(null)}>
+                    <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                </TouchableOpacity>
 
-        })
+            })
+        } else {
+            return ({
+                headerTitle: '请选择 - ' + label,
+                headerLeft: <TouchableOpacity onPress={() => navigation.goBack(null)}>
+                    <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                </TouchableOpacity>
+
+            })
+        }
+
     };
     constructor(props) {
         super(props)
@@ -49,9 +58,9 @@ export default class ItemSelection extends React.Component {
                 self.setState({ showFullScreenLoading: true });
                 AppUtils.loadingConfigData().then((res) => {
                     self.setState({ showFullScreenLoading: false });
-                    if (res.status===200) {
+                    if (res.status === 200) {
                         resolve(AppUtils.getConfigItem(itemName));
-                    }else if(res.status===700){
+                    } else if (res.status === 700) {
                         AppUtils.showToast(res.message);
                         AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
                         resolve([])
@@ -134,7 +143,7 @@ export default class ItemSelection extends React.Component {
                     }
                 }
             } else {
-                for(let i=0;i<res.length;i++){
+                for (let i = 0; i < res.length; i++) {
                     dataSource.push(res[i]);
                 }
                 for (let i = 0; i < dataSource.length; i++) {
@@ -143,13 +152,13 @@ export default class ItemSelection extends React.Component {
                 }
             }
 
-            if(this.props.navigation.state.params.toAddAll){
+            if (this.props.navigation.state.params.toAddAll) {
                 dataSource.push({
-                    name:'All',
-                    key:res.length,
-                    selected:false
+                    name: 'All',
+                    key: res.length,
+                    selected: false
                 })
-             }
+            }
             this.setState({ data: dataSource, category: itemName })
         })
 
@@ -225,7 +234,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#E5E4E2',
         backgroundColor: '#4863A0',
         color: "#FFF",
-        fontSize:12,
+        fontSize: 12,
     },
     itemContent: {
         height: 50,
@@ -233,7 +242,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#E5E4E2',
         color: "#000",
-        fontSize:12,
+        fontSize: 12,
     },
     container: {
         flex: 1,

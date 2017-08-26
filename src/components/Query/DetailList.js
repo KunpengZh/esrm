@@ -19,13 +19,13 @@ export default class DetailList extends React.Component {
             </TouchableOpacity>
         };
     };
-    constructor(props){
+    constructor(props) {
         super(props);
-        this.state={};
-        this.state.workFormsList=props.navigation.state.params.data?props.navigation.state.params.data:[];
-        
+        this.state = {};
+        this.state.workFormsList = props.navigation.state.params.data ? props.navigation.state.params.data : [];
+
     }
-   
+
     _onPressItem = (id) => {
         let self = this;
         let workForm = {};
@@ -38,13 +38,10 @@ export default class DetailList extends React.Component {
             }
         }
         if (find) {
-            console.log(id);
-            // this.props.navigation.navigate('OpenWorkForm', {
-            //     workFormData: workForm,
-            //     formModel: 'EditModel',
-            //     updateWorkFormList: self._updateWorkFormList,
-            //     reLoadingWorkFormList: self._reLoadingWorkFormList
-            // });
+            this.props.navigation.navigate('OpenWorkForm', {
+                workFormData: workForm,
+                formModel: 'ReadOnlyModel',
+            });
         }
     }
     render() {
@@ -57,8 +54,8 @@ export default class DetailList extends React.Component {
 }
 const styles = StyleSheet.create({
     ListViewContainer: {
-        margin:5,
-        backgroundColor:'#FFF',
+        margin: 5,
+        backgroundColor: '#FFF',
         flex: 1,
         borderWidth: 1,
         borderColor: '#D1D0C1'

@@ -42,6 +42,15 @@ const CreateModel = {
     'multiText': [],
     'dateTime': ['planreturntime', 'returntime']
 };
+const ReadOnlyModel = {
+    'adminSelectable': [],
+    'editable': [],
+    'selectable': [],
+    'numberonly': [],
+    'multiSelectable': [],
+    'multiText': [],
+    'dateTime': []
+}
 
 
 
@@ -94,6 +103,8 @@ class WorkFormItem extends React.Component {
             curModel = EditModel;
         } else if (this.props.formModel === "CreateModel") {
             curModel = CreateModel;
+        } else if (this.props.formModel === "ReadOnlyModel") {
+            curModel = ReadOnlyModel;
         }
 
         if (curModel.editable.indexOf(this.props.data.category) >= 0) {
@@ -204,14 +215,23 @@ class WorkFormItem extends React.Component {
 class CreateWorkForm extends React.Component {
     static navigationOptions = ({ navigation }) => {
         const { params = {} } = navigation.state;
-        return {
-            headerRight: <TouchableOpacity onPress={() => params.handleSave()}>
-                <FontAwesome name="save" style={styles.headericon} />
-            </TouchableOpacity>,
-            headerLeft: <TouchableOpacity onPress={() => params.goBack(null)}>
-                <FontAwesome name="arrow-circle-left" style={styles.headericon} />
-            </TouchableOpacity>
-        };
+        if (navigation.state.params.formModel === 'ReadOnlyModel') {
+            return {
+                headerLeft: <TouchableOpacity onPress={() => params.goBack(null)}>
+                    <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                </TouchableOpacity>
+            };
+        } else {
+            return {
+                headerRight: <TouchableOpacity onPress={() => params.handleSave()}>
+                    <FontAwesome name="save" style={styles.headericon} />
+                </TouchableOpacity>,
+                headerLeft: <TouchableOpacity onPress={() => params.goBack(null)}>
+                    <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                </TouchableOpacity>
+            };
+        }
+
     };
     constructor(props) {
         super(props);
@@ -323,7 +343,7 @@ class CreateWorkForm extends React.Component {
         this.updatedFormModel[key] = value;
     }
     _saveWorkForm() {
-       
+
         if (this.formModel === 'EditModel') {
             if (JSON.stringify(this.updatedFormModel) === "{}") {
                 AppUtils.showToast("没有数据更新");
@@ -353,7 +373,7 @@ class CreateWorkForm extends React.Component {
                 if (res.status === 200) {
                     this.props.navigation.state.params.reLoadingWorkFormList();
                     this._goBack();
-                }else if(res.status===700){
+                } else if (res.status === 700) {
                     AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
                 }
             }).catch((err) => {
@@ -400,7 +420,7 @@ class CreateWorkForm extends React.Component {
             if (res.status === 200) {
                 this.props.navigation.state.params.reLoadingWorkFormList();
                 this._goBack();
-            }else if (res.status===700){
+            } else if (res.status === 700) {
                 AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
             }
         }).catch((err) => {
@@ -525,7 +545,7 @@ class CreateWorkForm extends React.Component {
                     if (res.status === 200) {
                         this.props.navigation.state.params.updateWorkFormList(res.data);
                         this.setState(res.data);
-                    }else if(res.status===700){
+                    } else if (res.status === 700) {
                         AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
                     }
                 }).catch((err) => {
@@ -555,14 +575,16 @@ class CreateWorkForm extends React.Component {
             <ScrollView contentContainerStyle={styles.container}>
                 <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 {items}
-                <View style={styles.ButtonContainer}>
-                    <TouchableOpacity onPress={this._completeRequestForm.bind(this)} style={styles.actionButtonContainer}>
-                        <Text style={styles.actionButtonText}>完成工单</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={this._selectImagesToUpload} style={styles.actionButtonContainer}>
-                        <Text style={styles.actionButtonText}>上传照片</Text>
-                    </TouchableOpacity>
-                </View>
+                {this.formModel === 'EditModel' ? (
+                    <View style={styles.ButtonContainer}>
+                        <TouchableOpacity onPress={this._completeRequestForm.bind(this)} style={styles.actionButtonContainer}>
+                            <Text style={styles.actionButtonText}>完成工单</Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity onPress={this._selectImagesToUpload} style={styles.actionButtonContainer}>
+                            <Text style={styles.actionButtonText}>上传照片</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : (null)}
                 <WorkFormImageView workDocuments={this.state.workdocument} />
                 <DateTimePicker
                     isVisible={this.state.isDateTimePickerVisible}
@@ -617,7 +639,7 @@ const styles = StyleSheet.create({
         color: "#000"
     },
     WFItemContent: {
-        flex:1,
+        flex: 1,
         fontSize: 12,
         color: "#000"
     },
@@ -644,7 +666,7 @@ const styles = StyleSheet.create({
     container: {
         padding: 10,
         backgroundColor: 'white',
-        margin:5
+        margin: 5
     },
     headerStyle: {
         height: 40,

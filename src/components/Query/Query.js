@@ -18,6 +18,7 @@ import ItemSelection from '../WorkForm/ItemSelection'
 import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import ViewResultCategory from './ViewResultCategory'
+import DetailList from './DetailList'
 
 
 class Query extends React.Component {
@@ -195,7 +196,7 @@ class Query extends React.Component {
                 AppUtils.showToast(res.message);
                 AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
             } else if (res.status === 200) {
-                this.props.navigation.navigate('ViewResultCategory')
+                this.props.navigation.navigate('ViewResultCategory',{data:res.data});
             } else {
                 AppUtils.showToast(res.message);
             }
@@ -417,6 +418,14 @@ export default StackNavigator({
         screen: ViewResultCategory,
         navigationOptions: ({ navigation }) => ({
             headerTitle: '选择查询结果',
+            headerStyle: styles.headerStyle,
+            headerTitleStyle: styles.headerTitleStyle
+        }),
+    },
+    DetailList: {
+        screen: DetailList,
+        navigationOptions: ({ navigation }) => ({
+            headerTitle: '工单详细清单',
             headerStyle: styles.headerStyle,
             headerTitleStyle: styles.headerTitleStyle
         }),

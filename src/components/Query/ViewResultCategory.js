@@ -6,10 +6,10 @@ import {
     StyleSheet,
     ScrollView
 } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-class MenuPage extends React.Component {
+export default class MenuPage extends React.Component {
     static navigationOptions = ({ navigation }) => {
         const { params = {} } = navigation.state;
         return {
@@ -18,15 +18,22 @@ class MenuPage extends React.Component {
             </TouchableOpacity>
         };
     };
-    onItemPress() {
-        console.log('onpress item')
+    onItemPress(category) {
+        switch (category) {
+            case 'DetailList':
+                this.props.navigation.navigate('DetailList',{data:this.props.navigation.state.params.data});
+                break;
+            case 'TotalAnalytics':
+            case 'ByWorkers':
+        }
+
     }
     render() {
         return (
             <ScrollView>
                 <Text style={styles.funLabel}>查看详细查询结果</Text>
                 <View style={styles.container}>
-                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('workCategory')}>
+                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('DetailList')}>
                         <FontAwesome name="sitemap" style={styles.labelicon} />
                         <Text style={styles.label}>查看详细清单</Text>
                         <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
@@ -34,7 +41,7 @@ class MenuPage extends React.Component {
                 </View>
                 <Text style={styles.funLabel}>综合汇总统计</Text>
                 <View style={styles.container}>
-                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('workCategory')}>
+                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('TotalAnalytics')}>
                         <FontAwesome name="building-o" style={styles.labelicon} />
                         <Text style={styles.label}>综合汇总统计</Text>
                         <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
@@ -42,7 +49,7 @@ class MenuPage extends React.Component {
                 </View>
                 <Text style={styles.funLabel}>按单位与工作人员统计</Text>
                 <View style={styles.container}>
-                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('workCategory')}>
+                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('ByWorkers')}>
                         <FontAwesome name="vcard-o" style={styles.labelicon} />
                         <Text style={styles.label}>单位与工作人员统计</Text>
                         <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
@@ -140,23 +147,8 @@ const styles = StyleSheet.create({
     },
     headerTitleStyle: {
         fontSize: 12, // 文字大小
-        color:"#666362"
+        color: "#666362"
     }
 })
 
-export default StackNavigator({
-    MenuPage: {
-        screen: MenuPage,
-        navigationOptions: ({ navigation }) => ({
-            headerTitle: '',
-            headerStyle: styles.headerStyle,
-            headerTitleStyle: styles.headerTitleStyle
-        }),
-    }
-
-}, {
-        initialRouteName: "MenuPage",
-        headerMode: "none",
-
-    })
 

@@ -128,6 +128,7 @@ class WorkFormItem extends React.Component {
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
                     <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                    <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                 </TouchableOpacity>
             )
         } else if (curModel.selectable.indexOf(this.props.data.category) >= 0) {
@@ -136,6 +137,7 @@ class WorkFormItem extends React.Component {
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
                     <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                    <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                 </TouchableOpacity>
             )
         } else if (curModel.multiText.indexOf(this.props.data.category) >= 0) {
@@ -176,6 +178,7 @@ class WorkFormItem extends React.Component {
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
                     <Text style={styles.WFItemContent}>{value}</Text>
+                    <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                 </TouchableOpacity>
             )
         } else if (curModel.dateTime.indexOf(this.props.data.category) >= 0) {
@@ -183,6 +186,7 @@ class WorkFormItem extends React.Component {
                 <TouchableOpacity style={styles.row} onPress={this._showDateTimePicker}>
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
                     <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                    <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                 </TouchableOpacity>
             )
         } else {
@@ -613,8 +617,12 @@ const styles = StyleSheet.create({
         color: "#000"
     },
     WFItemContent: {
+        flex:1,
         fontSize: 12,
         color: "#000"
+    },
+    rightArrorIcon: {
+        fontSize: 16
     },
     WFItemLabel: {
         width: 90,
@@ -635,7 +643,8 @@ const styles = StyleSheet.create({
     },
     container: {
         padding: 10,
-        backgroundColor: 'white'
+        backgroundColor: 'white',
+        margin:5
     },
     headerStyle: {
         height: 40,

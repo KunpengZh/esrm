@@ -141,6 +141,7 @@ class WorkFormHome extends React.Component {
         return (
             <View style={styles.container}>
                 <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
+                <Text style={styles.funLabel}>创建新的派工单</Text>
                 <View style={styles.topContainer} >
                     <TouchableOpacity onPress={this._createNewWorkForm}>
                         <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />
@@ -151,6 +152,7 @@ class WorkFormHome extends React.Component {
                         <Text>紧急派工</Text>
                     </TouchableOpacity>
                 </View>
+                <Text style={styles.funLabel}>您所属单位的没有完成的工单</Text>
                 <View style={styles.bottomContainer}>
                     <WorkFformList data={this.state.workFormsList} onPressItem={this._onPressItem} />
                 </View>
@@ -164,20 +166,37 @@ const styles = StyleSheet.create({
         flex: 1,
         // padding: 0
     },
+    funLabel: {
+        paddingLeft: 15,
+        paddingRight: 15,
+        paddingBottom: 5,
+        marginTop: 10,
+        fontSize: 12,
+        color: '#848482'
+    },
     topContainer: {
         flex: 1,
         flexDirection: 'row',
         justifyContent: "space-around",
-        alignItems: 'center'
+        alignItems: 'center',
+        padding: 10,
+        margin: 10,
+        marginTop: 0,
+        marginBottom: 5,
+        backgroundColor: "#FFF",
+        borderWidth: 1,
+        borderColor: '#D1D0C1',
     },
     bottomContainer: {
         flex: 3,
         flexDirection: 'row',
         justifyContent: "space-between",
         borderWidth: 1,
-        //borderColor: '#C2DFFF'
-        // borderColor:'#E5E4E2'
-        borderColor: '#D1D0C1'
+        borderColor: '#D1D0C1',
+        padding: 10,
+        margin: 10,
+        marginTop: 0,
+        backgroundColor: "#FFF",
     },
     actionLogo: {
         width: 60,

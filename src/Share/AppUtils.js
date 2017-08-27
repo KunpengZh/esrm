@@ -271,10 +271,13 @@ var AppUtils = (function () {
         'workcomments': '工作备注:',
         'workdocument': '工作图片:',
         'workers': '工作人员:',
+        'worker': '工作人员:',
         'workersnumber': '人员数量:',
         'workhour': '工 时:',
         'workitem': '工作内容:',
         'worklocation': '工作地点:',
+        'requestwage': '总工额',
+        'perhourwage': '单位工额'
     }
 
     const workformDataModel = {
@@ -455,7 +458,7 @@ var AppUtils = (function () {
             });
         })
     }
-    var queryByWoker = function (criteria) {
+    var queryByWorkHistory = function (criteria) {
         return new Promise(function (resolve, reject) {
             let url = 'queryWorkForm/worker';
             queryWorkForm(criteria, url).then((res) => {
@@ -481,7 +484,7 @@ var AppUtils = (function () {
                     data: criteria
                 })
             }).then((response) => response.json()).then((res) => {
-           
+
                 if (res.hasOwnProperty('err')) {
                     resolve({
                         status: 700,
@@ -515,6 +518,24 @@ var AppUtils = (function () {
         return workerWorkerQueryResult;
     }
 
+    /**
+     * ArrayToString
+     */
+
+    var ArrayToString = function (arr) {
+        if (!(arr instanceof Array)) {
+            return arr;
+        }
+        let str = '';
+        for (let i = 0; i < arr.length; i++) {
+            if (str === '') {
+                str = arr[i];
+            } else {
+                str += ' , ' + arr[i];
+            }
+        }
+        return str;
+    }
 
     /**
      * Return the object will be export from App Utils
@@ -544,8 +565,9 @@ var AppUtils = (function () {
         getRootNavigation: getRootNavigation,
         getWorkFormQueryResult: getWorkFormQueryResult,
         getWorkerWorkFormQueryResult: getWorkerWorkFormQueryResult,
-        queryByWoker: queryByWoker,
-        queryByWorkForm: queryByWorkForm
+        queryByWorkHistory: queryByWorkHistory,
+        queryByWorkForm: queryByWorkForm,
+        ArrayToString: ArrayToString
     }
 
 })()

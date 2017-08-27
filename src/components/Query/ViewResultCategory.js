@@ -21,10 +21,20 @@ export default class MenuPage extends React.Component {
     onItemPress(category) {
         switch (category) {
             case 'DetailList':
-                this.props.navigation.navigate('DetailList',{data:this.props.navigation.state.params.data});
+                this.props.navigation.navigate('DetailList', {
+                    data: this.props.navigation.state.params.workFormsList,
+                    formName: this.props.navigation.state.params.formName
+                });
                 break;
-            case 'TotalAnalytics':
-            case 'ByWorkers':
+            case 'integrationCount':
+                this.props.navigation.navigate('IntegrationCount', { data: this.props.navigation.state.params.integrationCount });
+                break;
+            case 'companyCount':
+                this.props.navigation.navigate('CompanyCount', { data: this.props.navigation.state.params.companyCount });
+                break;
+            case 'workerCount':
+                this.props.navigation.navigate('WorkerCount', { data: this.props.navigation.state.params.workerCount });
+                break;
         }
 
     }
@@ -41,17 +51,25 @@ export default class MenuPage extends React.Component {
                 </View>
                 <Text style={styles.funLabel}>综合汇总统计</Text>
                 <View style={styles.container}>
-                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('TotalAnalytics')}>
+                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('integrationCount')}>
                         <FontAwesome name="building-o" style={styles.labelicon} />
                         <Text style={styles.label}>综合汇总统计</Text>
                         <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                     </TouchableOpacity>
                 </View>
-                <Text style={styles.funLabel}>按单位与工作人员统计</Text>
+                <Text style={styles.funLabel}>按单位汇总统计</Text>
                 <View style={styles.container}>
-                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('ByWorkers')}>
+                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('companyCount')}>
                         <FontAwesome name="vcard-o" style={styles.labelicon} />
-                        <Text style={styles.label}>单位与工作人员统计</Text>
+                        <Text style={styles.label}>单位汇总统计</Text>
+                        <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
+                    </TouchableOpacity>
+                </View>
+                <Text style={styles.funLabel}>按作业人员汇总统计</Text>
+                <View style={styles.container}>
+                    <TouchableOpacity style={styles.row} onPress={() => this.onItemPress('workerCount')}>
+                        <FontAwesome name="user-o" style={styles.labelicon} />
+                        <Text style={styles.label}>作业人员汇总统计</Text>
                         <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                     </TouchableOpacity>
                 </View>

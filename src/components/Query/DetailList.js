@@ -5,8 +5,8 @@ import {
     TouchableOpacity,
     StyleSheet
 } from 'react-native';
-import AppUtils from '../../Share/AppUtils'
-import WorkFformList from '../WorkForm/WorkFormList'
+
+import WorkFformList from './WorkFormList'
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 
@@ -23,7 +23,6 @@ export default class DetailList extends React.Component {
         super(props);
         this.state = {};
         this.state.workFormsList = props.navigation.state.params.data ? props.navigation.state.params.data : [];
-
     }
 
     _onPressItem = (id) => {
@@ -38,16 +37,25 @@ export default class DetailList extends React.Component {
             }
         }
         if (find) {
-            this.props.navigation.navigate('OpenWorkForm', {
-                workFormData: workForm,
-                formModel: 'ReadOnlyModel',
-            });
+            
+            if(this.props.navigation.state.params.formName==='WorkForm'){
+                this.props.navigation.navigate('OpenWorkForm', {
+                    workFormData: workForm,
+                    formModel: 'ReadOnlyModel',
+                });
+            }else{
+                this.props.navigation.navigate('WorkHistory', {
+                    workFormData: workForm,
+                    formModel: 'ReadOnlyModel',
+                });
+            }
+            
         }
     }
     render() {
         return (
             <View style={styles.ListViewContainer}>
-                <WorkFformList data={this.state.workFormsList} onPressItem={this._onPressItem} />
+                <WorkFformList data={this.state.workFormsList} formName={this.props.navigation.state.params.formName} onPressItem={this._onPressItem} />
             </View>
         )
     }

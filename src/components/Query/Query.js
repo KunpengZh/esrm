@@ -19,7 +19,11 @@ import DateTimePicker from 'react-native-modal-datetime-picker';
 import moment from 'moment';
 import ViewResultCategory from './ViewResultCategory'
 import DetailList from './DetailList'
-import OpenWorkForm from '../WorkForm/CreateWorkForm'
+import OpenWorkForm from './ShowWorkForm';
+import IntegrationCount from './IntegrationCount';
+import CompanyCount from './CompanyCount';
+import WorkerCount from './WorkerCount';
+import WorkHistory from './ShowWorkHistory';
 
 
 class Query extends React.Component {
@@ -30,7 +34,7 @@ class Query extends React.Component {
                 <FontAwesome name="list-alt" style={styles.headericon} />
                 <Text style={styles.topMenuButton}>按工单汇总</Text>
             </TouchableOpacity>,
-            headerLeft: <TouchableOpacity style={styles.topMenuContainer} onPress={() => params.queyryByWorker()}>
+            headerLeft: <TouchableOpacity style={styles.topMenuContainer} onPress={() => params._queryByWorkHistory()}>
                 <FontAwesome name="user-circle-o" style={styles.headericon} />
                 <Text style={styles.topMenuButton}>按工作人员汇总</Text>
             </TouchableOpacity>
@@ -44,6 +48,7 @@ class Query extends React.Component {
             company: '',
             requester: '',
             workers: [],
+            disWorkers: '',
             returntime1: '',
             returntime2: '',
             creationtime1: '',
@@ -53,13 +58,11 @@ class Query extends React.Component {
             showFullScreenLoading: false
         }
     }
-    _queyryByWorker = () => {
-        console.log("query by worker")
-    }
+
     componentDidMount() {
         this.props.navigation.setParams({
             queryByWorkForm: this._queryByWorkForm.bind(this),
-            queyryByWorker: this._queyryByWorker.bind(this)
+            _queryByWorkHistory: this._queryByWorkHistory.bind(this)
         });
     }
     onDateTimePickerPressed = (itemName) => {
@@ -107,15 +110,19 @@ class Query extends React.Component {
         })
     }
     onSelect = (data) => {
-
         let nObj = {};
         if (data.category === 'company' && data.value != this.state.company) {
             nObj.requester = '';
             nObj.workers = [];
+            nObj.disWorkers = '';
         }
 
-        nObj[data.category] = data.value;
-
+        if (data.category === 'workers') {
+            nObj.workers = data.value;
+            nObj.disWorkers = AppUtils.ArrayToString(data.value);
+        } else {
+            nObj[data.category] = data.value;
+        }
         this.setState(nObj);
     }
     _hideDateTimePicker = () => this.setState({ isDateTimePickerVisible: false });
@@ -126,7 +133,78 @@ class Query extends React.Component {
         this._hideDateTimePicker();
         this.setState(newState)
     }
+    _queryByWorkHistory() {
+        let qcriteria = this.makeCriteria();
+        if (!qcriteria) return;
+
+        this.setState({ showFullScreenLoading: true });
+        AppUtils.queryByWorkHistory(qcriteria).then((res) => {
+            this.setState({ showFullScreenLoading: false });
+            if (res.status === 700) {
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.showToast(res.message);
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
+            } else if (res.status === 200) {
+               
+                if (res.data.length > 0) {
+                    let sumcount = this.updateintegrationCount(res.data);
+                   
+                    this.props.navigation.navigate('ViewResultCategory', {
+                        workFormsList: res.data,
+                        integrationCount: sumcount.integrationCount,
+                        companyCount: sumcount.companyCount,
+                        workerCount: sumcount.workerCount,
+                        formName:'WorkHistory'
+                    });
+                } else {
+                    AppUtils.showToast("木有符合查询条件的数据");
+                }
+
+            } else {
+                AppUtils.showToast(res.message);
+            }
+        }).catch((err) => {
+            this.setState({ showFullScreenLoading: false });
+            AppUtils.showToast(err);
+        })
+    }
     _queryByWorkForm() {
+        let qcriteria = this.makeCriteria();
+        if (!qcriteria) return;
+
+        this.setState({ showFullScreenLoading: true });
+        AppUtils.queryByWorkForm(qcriteria).then((res) => {
+
+            this.setState({ showFullScreenLoading: false });
+            if (res.status === 700) {
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.showToast(res.message);
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
+            } else if (res.status === 200) {
+                if (res.data.length > 0) {
+                    let sumcount = this.updateintegrationCount(res.data);
+                   
+                    this.props.navigation.navigate('ViewResultCategory', {
+                        workFormsList: res.data,
+                        integrationCount: sumcount.integrationCount,
+                        companyCount: sumcount.companyCount,
+                        workerCount: sumcount.workerCount,
+                        formName:'WorkForm'
+                    });
+                } else {
+                    AppUtils.showToast("木有符合查询条件的数据");
+                }
+
+            } else {
+                AppUtils.showToast(res.message);
+            }
+        }).catch((err) => {
+            this.setState({ showFullScreenLoading: false });
+            AppUtils.showToast(err);
+        })
+    }
+
+    makeCriteria = () => {
         let qcriteria = {};
         if (this.state.requestId !== "") {
             qcriteria.requestId = this.state.requestId;
@@ -138,9 +216,9 @@ class Query extends React.Component {
             qcriteria.requester = this.state.requester;
         }
         if (this.state.workers.length > 0) {
-            var needworks = true;
-            var workers = this.state.workers;
-            for (var i = 0; i < workers.length; i++) {
+            let needworks = true;
+            let workers = this.state.workers;
+            for (let i = 0; i < workers.length; i++) {
                 if (workers[i] === "All") {
                     needworks = false;
                     break;
@@ -156,7 +234,7 @@ class Query extends React.Component {
 
         if ((this.state.creationtime1 !== "" && this.state.creationtime2 === "") || (this.state.creationtime1 === "" && this.state.creationtime2 !== "")) {
             AppUtils.showToast("派工日期必须成对选取!");
-            return;
+            return false;
         }
         if (this.state.creationtime1 !== "") {
             let date1 = Date.parse(new Date(this.state.creationtime1)) / 1000 / 60;
@@ -174,7 +252,7 @@ class Query extends React.Component {
 
         if ((this.state.returntime1 !== "" && this.state.returntime2 === "") || (this.state.returntime1 === "" && this.state.returntime2 !== "")) {
             AppUtils.showToast("实际返回日期必须成对选取!");
-            return;
+            return false;
         }
         if (this.state.returntime1 !== "") {
             let date1 = Date.parse(new Date(this.state.returntime1)) / 1000 / 60;
@@ -189,24 +267,192 @@ class Query extends React.Component {
             qcriteria.returntime.push(this.state.returntime1);
             qcriteria.returntime.push(this.state.returntime2);
         }
-        this.setState({ showFullScreenLoading: true });
-        AppUtils.queryByWorkForm(qcriteria).then((res) => {
-            this.setState({ showFullScreenLoading: false });
-            if (res.status === 700) {
-                this.setState({ showFullScreenLoading: false });
-                AppUtils.showToast(res.message);
-                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
-            } else if (res.status === 200) {
-                this.props.navigation.navigate('ViewResultCategory',{data:res.data});
-            } else {
-                AppUtils.showToast(res.message);
-            }
-        }).catch((err) => {
-            this.setState({ showFullScreenLoading: false });
-            AppUtils.showToast(err);
-        })
+        return qcriteria;
     }
+    handleWorkerUpdate = (curWorker, source) => {
+        curWorker.requestNum++;
+        curWorker.workhourNum += source.workhour;
+        curWorker.wageNum += source.perhourwage * source.workhour;
 
+        let requester = source.requester;
+        curWorker = this.updateObjForKey(curWorker, 'requester', requester);
+        let company = source.company;
+        curWorker = this.updateObjForKey(curWorker, 'company', company);
+        let workCategory = source.workCategory;
+        curWorker = this.updateObjForKey(curWorker, 'workCategory', workCategory);
+
+        curWorker.refComments.push(source['requestId'] + ': '
+            + source['workhour'] + '(工时) X '
+            + source['perhourwage'] + '(单位工时) =' + source['workhour'] * source['perhourwage'] + '(工单工额)')
+
+        return curWorker;
+
+    }
+    updateObjForKey = (obj, key, value) => {
+        if (obj[key].indexOf(value) < 0) {
+            if (obj[key] === '') {
+                obj[key] = value;
+            } else {
+                obj[key] = obj[key] + ' , ' + value;
+            }
+        }
+        return obj;
+    }
+    updateintegrationCount = (source) => {
+        let integrationCount = {
+            company: '',
+            worker: '',
+            requester: '',
+            workCategory: '',
+            requestNum: 0,
+            wageNum: 0,
+            workhourNum: 0,
+            returntime: "",
+            requester: "",
+            creationtime: ''
+        }
+        let companyCount = {};
+
+        let workerCount = {};
+        let curWorker = {};
+
+        let needupdate = false;
+
+        for (let i = 0; i < source.length; i++) {
+            needupdate = true;
+            if (!source[i].perhourwage || source[i].perhourwage == null || source[i].perhourwage === '') {
+                source[i].perhourwage = 0;
+            }
+            if (!source[i].requestwage || source[i].requestwage == null || source[i].requestwage === '') {
+                source[i].requestwage = 0;
+            }
+            if (!source[i].workhour || source[i].workhour == null || source[i].workhour === '') {
+                source[i].workhour = 0;
+            }
+
+            let curCompany = source[i].company;
+            let curObj;
+
+            if (companyCount[curCompany]) {
+                curObj = companyCount[curCompany];
+            } else {
+                curObj = {
+                    company: curCompany,
+                    refComments: [],
+                    requestNum: 0,
+                    requester: '',
+                    wageNum: 0,
+                    workCategory: '',
+                    worker: '',
+                    workhourNum: 0
+                };
+            }
+
+            integrationCount = this.updateObjForKey(integrationCount, 'company', curCompany);
+
+            if (source[i].workers) {
+                let workers = source[i].workers;
+                for (let k = 0; k < workers.length; k++) {
+                    let worker = workers[k];
+                    if (workerCount[worker]) {
+                        curWorker = workerCount[worker];
+                    } else {
+                        curWorker = {
+                            worker: worker,
+                            company: curCompany,
+                            requestNum: 0,
+                            requester: '',
+                            workCategory: '',
+                            workhourNum: 0,
+                            refComments: [],
+                            wageNum: 0
+                        }
+                    }
+                    workerCount[worker] = this.handleWorkerUpdate(curWorker, source[i]);
+                    integrationCount = this.updateObjForKey(integrationCount, 'worker', worker);
+                    curObj = this.updateObjForKey(curObj, 'worker', worker);
+                }
+                curObj.refComments.push(source[i]['requestId'] + ': '
+                    + source[i]['workersnumber'] + '(人数) X ' + source[i]['workhour'] + '(工时) X '
+                    + source[i]['perhourwage'] + '(单位工时) =' + source[i]['requestwage'] + '(总工额)');
+
+            } else if (source[i].worker) {
+                let worker = source[i].worker;
+                if (workerCount[worker]) {
+                    curWorker = workerCount[worker];
+                } else {
+                    curWorker = {
+                        worker: worker,
+                        company: curCompany,
+                        requestNum: 0,
+                        requester: '',
+                        workCategory: '',
+                        workhourNum: 0,
+                        refComments: [],
+                        wageNum: 0
+                    }
+                }
+                workerCount[worker] = this.handleWorkerUpdate(curWorker, source[i]);
+                integrationCount = this.updateObjForKey(integrationCount, 'worker', worker);
+                curObj = this.updateObjForKey(curObj, 'worker', worker);
+                curObj.refComments.push(source[i]['requestId'] + ': '
+                    + source[i]['workhour'] + '(工时) X '
+                    + source[i]['perhourwage'] + '(单位工时) =' + source[i]['requestwage'] + '(总工额)');
+
+            }
+
+
+            integrationCount = this.updateObjForKey(integrationCount, 'requester', source[i].requester);
+            curObj = this.updateObjForKey(curObj, 'requester', source[i].requester);
+
+            integrationCount = this.updateObjForKey(integrationCount, 'workCategory', source[i].workCategory);
+            curObj = this.updateObjForKey(curObj, 'workCategory', source[i].workCategory);
+
+            integrationCount.requestNum++;
+            curObj.requestNum++;
+            integrationCount.wageNum = integrationCount.wageNum + source[i].requestwage;
+            curObj.wageNum = curObj.wageNum + source[i].requestwage;
+            integrationCount.workhourNum = integrationCount.workhourNum + source[i].workhour;
+            curObj.workhourNum = curObj.workhourNum + source[i].workhour;
+
+            companyCount[curCompany] = curObj;
+
+        }
+
+        let returntime = '';
+        if (this.state.returntime1 !== '') {
+            returntime = this.state.returntime1 + " -- " + this.state.returntime2;
+        }
+        let creationtime = '';
+        if (this.state.creationtime1 !== '') {
+            creationtime = this.state.creationtime1 + " -- " + this.state.creationtime2;
+        }
+
+        integrationCount.returntime = returntime;
+        integrationCount.creationtime = creationtime;
+
+        if (needupdate) {
+            tableCompanyCount = [];
+            for (let key in companyCount) {
+                tableCompanyCount.push(companyCount[key]);
+            }
+            tableWorkerCount = [];
+            for (let key in workerCount) {
+                tableWorkerCount.push(workerCount[key]);
+            }
+            return {
+                integrationCount: integrationCount,
+                companyCount: tableCompanyCount,
+                workerCount: tableWorkerCount
+            }
+        } else {
+            return {
+                integrationCount: integrationCount,
+                companyCount: [],
+                workerCount: []
+            }
+        }
+    }
     render() {
         return (
             <ScrollView>
@@ -254,7 +500,7 @@ class Query extends React.Component {
                         <FontAwesome name="users" style={styles.labelicon} />
                         <Text style={styles.label}>工作人员:</Text>
                         <TouchableOpacity style={styles.touchableArea} onPress={() => this.onItemPress('workers')}>
-                            <Text style={styles.contentText}>{this.state.workers}</Text>
+                            <Text style={styles.contentText}>{this.state.disWorkers}</Text>
                             <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                         </TouchableOpacity>
                     </View>
@@ -311,6 +557,7 @@ class Query extends React.Component {
 const styles = StyleSheet.create({
     contentText: {
         flex: 1,
+        fontSize: 12,
     },
     row: {
         flexDirection: 'row',
@@ -395,7 +642,7 @@ const styles = StyleSheet.create({
     },
     headerTitleStyle: {
         fontSize: 12, // 文字大小
-        color:"#666362"
+        color: "#666362"
     }
 
 })
@@ -439,7 +686,43 @@ export default StackNavigator({
             headerStyle: styles.headerStyle,
             //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
         })
-    }
+    },
+    IntegrationCount: {
+        screen: IntegrationCount,
+        navigationOptions: ({ navigation }) => ({
+            headerTitle: '综合汇总统计',
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
+            //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
+        })
+    },
+    CompanyCount: {
+        screen: CompanyCount,
+        navigationOptions: ({ navigation }) => ({
+            headerTitle: '单位汇总统计',
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
+            //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
+        })
+    },
+    WorkerCount: {
+        screen: WorkerCount,
+        navigationOptions: ({ navigation }) => ({
+            headerTitle: '作业人员汇总统计',
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
+            //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
+        })
+    },
+    WorkHistory:{
+        screen: WorkHistory,
+        navigationOptions: ({ navigation }) => ({
+            headerTitle: 'WorkForm - ' + navigation.state.params.workFormData.requestId,
+            headerTitleStyle: styles.headerTitleStyle,
+            headerStyle: styles.headerStyle,
+            //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
+        })
+    },
 
 }, {
         //headerMode: "none",

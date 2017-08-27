@@ -22,11 +22,13 @@ export default class LoginForm extends Component {
         AppUtils.appLogin(this.state.username, this.state.password).then((jsonRes) => {
             this.setState({ showFullScreenLoading: false });
             if (jsonRes.isAuthenticated) {
-                if(this.props.isMainLogin){
-                    this.props.navigation.navigate('MainNavigate')
-                }else{
-                    this.props.navigation.goBack(null);
-                }
+                this.props.navigation.goBack(null);
+                if(this.props.callback) this.props.callback();
+                // if(this.props.isMainLogin){
+                //     this.props.navigation.goBack(null);
+                // }else{
+                //     this.props.navigation.goBack(null);
+                // }
             } else {
                 AppUtils.showToast(jsonRes.message);
             }

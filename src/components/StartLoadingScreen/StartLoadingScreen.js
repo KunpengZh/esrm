@@ -9,42 +9,39 @@ import {
 } from 'react-native';
 
 import AppUtils from '../../Share/AppUtils'
+import MainNavigate from '../MainNavigate/MainNavigate'
 
 export default class Loading extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            modalVisible: true,
+            modalVisible: false,
         };
         AppUtils.setRootNavigation(this.props.navigation);
-        AppUtils.isUserLoggedIn().then((isUserLoggedIn) => {
-            this.hideLoading();
-            if (isUserLoggedIn) {
-                this.props.navigation.navigate('MainNavigate')
-            } else {
-                this.props.navigation.navigate('Login', {isMainLogin:true})
-            }
-        }).catch((err) => {
-            this.hideLoading()
-        })
     }
     hideLoading() {
         this.setState({ modalVisible: false });
     }
     render() {
         return (
-            <Modal transparent={true} onRequestClose={() => this.onRequestClose()} visible={this.state.modalVisible}>
-                <View style={styles.loadingBox}>
-                    <ActivityIndicator styleAttr='Inverse' color='#FF4500' />
-                </View>
-            </Modal>
+            <View style={styles.rootView}>
+                <MainNavigate />
+                <Modal transparent={true} onRequestClose={() => this.onRequestClose()} visible={this.state.modalVisible}>
+                    <View style={styles.loadingBox}>
+                        <ActivityIndicator styleAttr='Inverse' color='#FF4500' />
+                    </View>
+                </Modal>
+            </View>
         );
     }
 
 }
 
 const styles = StyleSheet.create({
+    rootView:{
+        flex:1
+    },
     loadingBox: {
         flex: 1,
         alignItems: 'center',

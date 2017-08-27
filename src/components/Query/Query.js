@@ -45,7 +45,7 @@ class Query extends React.Component {
         this.state = {
             requestId: '',
             workCategory: '',
-            company: '',
+            company: AppUtils.getUserProfile().company,
             requester: '',
             workers: [],
             disWorkers: '',
@@ -58,12 +58,19 @@ class Query extends React.Component {
             showFullScreenLoading: false
         }
     }
-
+    componentWillReceiveProps() {
+        //console.log("hihihi")
+    }
+    updateUserCompany=()=>{
+        let newCompany=AppUtils.getUserProfile().company;
+        this.setState({company:newCompany});
+    }
     componentDidMount() {
         this.props.navigation.setParams({
             queryByWorkForm: this._queryByWorkForm.bind(this),
             _queryByWorkHistory: this._queryByWorkHistory.bind(this)
         });
+        AppUtils.setTabNavigation("Query", this);
     }
     onDateTimePickerPressed = (itemName) => {
         this.selectedItem = itemName;
@@ -145,16 +152,16 @@ class Query extends React.Component {
                 AppUtils.showToast(res.message);
                 AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
             } else if (res.status === 200) {
-               
+
                 if (res.data.length > 0) {
                     let sumcount = this.updateintegrationCount(res.data);
-                   
+
                     this.props.navigation.navigate('ViewResultCategory', {
                         workFormsList: res.data,
                         integrationCount: sumcount.integrationCount,
                         companyCount: sumcount.companyCount,
                         workerCount: sumcount.workerCount,
-                        formName:'WorkHistory'
+                        formName: 'WorkHistory'
                     });
                 } else {
                     AppUtils.showToast("木有符合查询条件的数据");
@@ -183,13 +190,13 @@ class Query extends React.Component {
             } else if (res.status === 200) {
                 if (res.data.length > 0) {
                     let sumcount = this.updateintegrationCount(res.data);
-                   
+
                     this.props.navigation.navigate('ViewResultCategory', {
                         workFormsList: res.data,
                         integrationCount: sumcount.integrationCount,
                         companyCount: sumcount.companyCount,
                         workerCount: sumcount.workerCount,
-                        formName:'WorkForm'
+                        formName: 'WorkForm'
                     });
                 } else {
                     AppUtils.showToast("木有符合查询条件的数据");
@@ -472,19 +479,30 @@ class Query extends React.Component {
                 </View>
                 <Text style={styles.funLabel}>按工作单位查询</Text>
                 <View style={styles.container}>
+                    {AppUtils.getUserProfile().isAdmin ? (
+                        <View style={styles.row}>
+                            <FontAwesome name="address-card-o" style={styles.labelicon} />
+                            <Text style={styles.label}>派工单位:</Text>
+                            <TouchableOpacity style={styles.touchableArea} onPress={() => this.onItemPress('company')}>
+                                <Text style={styles.contentText}>{this.state.company}</Text>
+                                <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                            <View style={styles.row}>
+                                <FontAwesome name="address-card-o" style={styles.labelicon} />
+                                <Text style={styles.label}>派工单位:</Text>
+                                <View style={styles.touchableArea}>
+                                    <Text style={styles.contentText}>{this.state.company}</Text>
+                                </View>
+                            </View>
+                        )}
+
                     <View style={styles.row}>
                         <FontAwesome name="tasks" style={styles.labelicon} />
                         <Text style={styles.label}>任务类别:</Text>
                         <TouchableOpacity style={styles.touchableArea} onPress={() => this.onItemPress('workCategory')}>
                             <Text style={styles.contentText}>{this.state.workCategory}</Text>
-                            <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
-                        </TouchableOpacity>
-                    </View>
-                    <View style={styles.row}>
-                        <FontAwesome name="address-card-o" style={styles.labelicon} />
-                        <Text style={styles.label}>派工单位:</Text>
-                        <TouchableOpacity style={styles.touchableArea} onPress={() => this.onItemPress('company')}>
-                            <Text style={styles.contentText}>{this.state.company}</Text>
                             <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                         </TouchableOpacity>
                     </View>
@@ -714,7 +732,7 @@ export default StackNavigator({
             //headerRight: <Button title="Save" onPress={() => navigation.state.params.handleSave()} />
         })
     },
-    WorkHistory:{
+    WorkHistory: {
         screen: WorkHistory,
         navigationOptions: ({ navigation }) => ({
             headerTitle: 'WorkForm - ' + navigation.state.params.workFormData.requestId,

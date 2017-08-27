@@ -120,7 +120,7 @@ var AppUtils = (function () {
     var _updateUserProfile = function (responseJson) {
         appUser.username = responseJson.username;
         appUser.role = responseJson.role;
-        appUser.isAdmin = responseJson.isAdmin;
+        appUser.isAdmin = (responseJson.role === 'Admin' || responseJson.role === 'AdminOffice') ? true : false;
         appUser.company = responseJson.company;
         appUser.fullname = responseJson.fullname;
         appUser.isAuthenticated = true;
@@ -180,13 +180,14 @@ var AppUtils = (function () {
     }
 
     var AppForceLogout = function () {
-        CookieManager.clearAll().then((cookres) => {
-            return true;
-        }).catch((err) => {
-            console.log(err);
-            showToast(err);
-            return false;
+        return new Promise(function (resolve, reject) {
+            CookieManager.clearAll().then((cookres) => {
+                resolve({ status: 200, message: '', data: '' });
+            }).catch((err) => {
+                resolve({ status: 500, message: err, data: '' });
+            })
         })
+
     }
 
     /**
@@ -538,9 +539,26 @@ var AppUtils = (function () {
     }
 
     /**
+     * Variables to keep the Workform and Query navigator
+     */
+    var tabNavigations = {
+        WorkForm: null,
+        Query: null,
+        Conf: null
+    }
+    var setTabNavigation = function (key, obj) {
+        tabNavigations[key] = obj;
+    }
+    var getTabNavigation = function (key) {
+        return tabNavigations[key]
+    }
+
+    /**
      * Return the object will be export from App Utils
      */
     return {
+        getTabNavigation:getTabNavigation,
+        setTabNavigation:setTabNavigation,
         getFromAppStore: getFromAppStore,
         setToAppStore: setToAppStore,
         getUserProfile: getUserProfile,

@@ -71,7 +71,7 @@ class WorkForm extends React.Component {
 const styles = StyleSheet.create({
     WFItemContent: {
         fontSize: 10,
-        width: 120
+        width: 90
     },
     WFItemLabel: {
         width: 50,
@@ -81,6 +81,8 @@ const styles = StyleSheet.create({
     },
     WFItemRow: {
         flex: 1,
+        paddingTop:3,
+        paddingBottom:3,
         flexDirection: 'row',
         justifyContent: "flex-start",
         alignItems: 'center',
@@ -94,14 +96,14 @@ const styles = StyleSheet.create({
         paddingTop: 10,
         paddingBottom: 10,
         flex: 1,
-        height: 90,
+        //height: 90,
         flexDirection: 'row',
         justifyContent: "flex-start",
         alignItems: 'center',
     },
     WFItemLogo: {
-        width: 50,
-        height: 50,
+        width: 40,
+        height: 40,
         borderRadius: 50
     },
     container: {

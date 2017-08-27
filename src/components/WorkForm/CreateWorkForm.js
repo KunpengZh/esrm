@@ -34,9 +34,9 @@ const EditModel = {
     'dateTime': ['returntime']
 };
 const CreateModel = {
-    'adminSelectable': ['company', 'requester'],
+    'adminSelectable': ['company'],
     'editable': ['worklocation', 'workcomments'],
-    'selectable': ['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing'],
+    'selectable': ['requester','workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing'],
     'multiSelectable': ['securityTools', 'spareParts', 'workers'],
     'numberonly': ['workhour'],
     'multiText': [],
@@ -108,7 +108,6 @@ class WorkFormItem extends React.Component {
         }
 
         if (curModel.editable.indexOf(this.props.data.category) >= 0) {
-
             return (
                 <View style={styles.row} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -134,16 +133,24 @@ class WorkFormItem extends React.Component {
                 </View>
             )
         } else if (curModel.adminSelectable.indexOf(this.props.data.category) >= 0) {
-
-            return (
-                <TouchableOpacity style={styles.row} onPress={this._onPress} >
-                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                    <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-                    <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
-                </TouchableOpacity>
-            )
+            if(AppUtils.getUserProfile().isAdmin){
+                return (
+                    <TouchableOpacity style={styles.row} onPress={this._onPress} >
+                        <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                        <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                        <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
+                    </TouchableOpacity>
+                )
+            }else{
+                return (
+                    <View style={styles.row}>
+                        <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                        <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                    </View>
+                )
+            }
+            
         } else if (curModel.selectable.indexOf(this.props.data.category) >= 0) {
-
             return (
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>

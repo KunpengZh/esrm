@@ -14,7 +14,7 @@ export default class Login extends Component {
                     <Image style={styles.title1} resizeMode="contain" source={require('../../images/xianxiangongdian.png')} />
                 </View>
                 <View style={styles.formContainer}>
-                    <LoginForm navigation={this.props.navigation} isMainLogin={this.props.isMainLogin?this.props.isMainLogin:this.props.navigation.state.params.isMainLogin}/>
+                    <LoginForm navigation={this.props.navigation} callback={this.props.navigation.state.params.callback} isMainLogin={this.props.navigation.state.params.isMainLogin}/>
                 </View>
             </KeyboardAvoidingView>
         );

@@ -9,7 +9,6 @@ import {
 import { StackNavigator, TabNavigator } from 'react-navigation';
 
 import Login from './src/components/Login/Login'
-import MainNavigate from './src/components/MainNavigate/MainNavigate'
 import StartLoading from './src/components/StartLoadingScreen/StartLoadingScreen'
 
 
@@ -18,12 +17,6 @@ const esrm = StackNavigator({
     screen: Login,
     navigationOptions: {
       //headerTitle: "",
-    }
-  },
-  MainNavigate: {
-    screen: MainNavigate,
-    navigationOptions: {
-      //headerTitle: '',
     }
   },
   StartLoading: {

@@ -27,20 +27,15 @@ class WorkFormHome extends React.Component {
 
     }
     componentDidMount() {
-
-        AppUtils.getOpenWorkForms().then((res) => {
-
-            if (res.status === 200) {
-                this.setState({ workFormsList: res.data, showFullScreenLoading: false })
-            } else if (res.status === 700) {
-                this.setState({ showFullScreenLoading: false });
-                AppUtils.showToast(res.message);
-                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
+        AppUtils.isUserLoggedIn().then((isUserLoggedIn) => {
+            if (isUserLoggedIn) {
+                this._reLoadingWorkFormList();
             } else {
-                this.setState({ showFullScreenLoading: false })
-                AppUtils.showToast(res.message)
+                this.setState({ showFullScreenLoading: false });
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false, callback: this._reLoadingWorkFormList })
             }
         })
+        AppUtils.setTabNavigation('WorkForm', this);
     }
     _updateWorkFormList = (newData) => {
         let WorkFormList = this.state.workFormsList;
@@ -52,15 +47,18 @@ class WorkFormHome extends React.Component {
         }
         this.setState({ workFormsList: WorkFormList });
     }
+    _cleanWorkList = () => {
+        this.setState({ workFormsList: [] });
+    }
     _reLoadingWorkFormList = () => {
-        this.setState({ showFullScreenLoading: false });
+        this.setState({ showFullScreenLoading: true });
         AppUtils.getOpenWorkForms().then((res) => {
             if (res.status === 200) {
                 this.setState({ workFormsList: res.data, showFullScreenLoading: false })
             } else if (res.status === 700) {
                 this.setState({ showFullScreenLoading: false });
                 AppUtils.showToast(res.message);
-                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false })
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false, callback: this._reLoadingWorkFormList })
             } else {
                 this.setState({ showFullScreenLoading: false })
                 AppUtils.showToast(res.message)
@@ -117,6 +115,7 @@ class WorkFormHome extends React.Component {
             if (res.status === 200) {
                 data.requestId = res.data.requestId;
                 data.creationtime = res.data.creationtime
+                data.company = AppUtils.getUserProfile().company;
                 this.props.navigation.navigate('CreateWorkForm', {
                     workFormData: data,
                     formModel: 'CreateModel',
@@ -147,9 +146,9 @@ class WorkFormHome extends React.Component {
                         <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />
                         <Text>新建派工</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => this.props.navigation.navigate('CreateUrgentWorkForm')}>
-                        <Image style={styles.actionLogo} source={require('../../images/icon_urgent.png')} />
-                        <Text>紧急派工</Text>
+                    <TouchableOpacity onPress={this._reLoadingWorkFormList}>
+                        <Image style={styles.actionLogo} source={require('../../images/refresh.png')} />
+                        <Text>刷新列表</Text>
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.funLabel}>您所属单位的没有完成的工单</Text>
@@ -188,7 +187,7 @@ const styles = StyleSheet.create({
         borderColor: '#D1D0C1',
     },
     bottomContainer: {
-        flex: 3,
+        flex: 4,
         flexDirection: 'row',
         justifyContent: "space-between",
         borderWidth: 1,
@@ -199,8 +198,8 @@ const styles = StyleSheet.create({
         backgroundColor: "#FFF",
     },
     actionLogo: {
-        width: 60,
-        height: 60,
+        width: 40,
+        height: 40,
         borderRadius: 50,
         marginBottom: 10
     },

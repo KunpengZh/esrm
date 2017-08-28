@@ -36,11 +36,11 @@ const EditModel = {
 const CreateModel = {
     'adminSelectable': ['company'],
     'editable': ['worklocation', 'workcomments'],
-    'selectable': ['requester','workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing'],
+    'selectable': ['requester', 'workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing'],
     'multiSelectable': ['securityTools', 'spareParts', 'workers'],
-    'numberonly': ['workhour'],
+    'numberonly': [],
     'multiText': [],
-    'dateTime': ['planreturntime', 'returntime']
+    'dateTime': ['planreturntime']
 };
 const ReadOnlyModel = {
     'adminSelectable': [],
@@ -48,7 +48,7 @@ const ReadOnlyModel = {
     'selectable': [],
     'numberonly': [],
     'multiSelectable': [],
-    'multiText': [],
+    'multiText': ['securityTools', 'spareParts', 'workers'],
     'dateTime': []
 }
 
@@ -133,7 +133,7 @@ class WorkFormItem extends React.Component {
                 </View>
             )
         } else if (curModel.adminSelectable.indexOf(this.props.data.category) >= 0) {
-            if(AppUtils.getUserProfile().isAdmin){
+            if (AppUtils.getUserProfile().isAdmin) {
                 return (
                     <TouchableOpacity style={styles.row} onPress={this._onPress} >
                         <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -141,7 +141,7 @@ class WorkFormItem extends React.Component {
                         <FontAwesome name="angle-double-right" style={styles.rightArrorIcon} />
                     </TouchableOpacity>
                 )
-            }else{
+            } else {
                 return (
                     <View style={styles.row}>
                         <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -149,7 +149,7 @@ class WorkFormItem extends React.Component {
                     </View>
                 )
             }
-            
+
         } else if (curModel.selectable.indexOf(this.props.data.category) >= 0) {
             return (
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
@@ -159,19 +159,7 @@ class WorkFormItem extends React.Component {
                 </TouchableOpacity>
             )
         } else if (curModel.multiText.indexOf(this.props.data.category) >= 0) {
-            let mData = this.props.data.data;
-            let value = '';
-            if (mData instanceof Array) {
-                for (let i = 0; i < mData.length; i++) {
-                    if (value === '') {
-                        value = mData[i]
-                    } else {
-                        value += ' , ' + mData[i];
-                    }
-                }
-            } else {
-                value = mData;
-            }
+            let value = AppUtils.ArrayToString(this.props.data.data);
             return (
                 <View style={styles.row} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -179,19 +167,7 @@ class WorkFormItem extends React.Component {
                 </View>
             )
         } else if (curModel.multiSelectable.indexOf(this.props.data.category) >= 0) {
-            let mData = this.props.data.data;
-            let value = '';
-            if (mData instanceof Array) {
-                for (let i = 0; i < mData.length; i++) {
-                    if (value === '') {
-                        value = mData[i]
-                    } else {
-                        value += ' , ' + mData[i];
-                    }
-                }
-            } else {
-                value = mData;
-            }
+            let value = AppUtils.ArrayToString(this.props.data.data);
             return (
                 <TouchableOpacity style={styles.row} onPress={this._onPress} >
                     <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -350,7 +326,6 @@ class CreateWorkForm extends React.Component {
         this.updatedFormModel[key] = value;
     }
     _saveWorkForm() {
-
         if (this.formModel === 'EditModel') {
             if (JSON.stringify(this.updatedFormModel) === "{}") {
                 AppUtils.showToast("没有数据更新");
@@ -435,6 +410,7 @@ class CreateWorkForm extends React.Component {
             AppUtils.showToast(err);
         })
     }
+    
     validateWorkForm(workFormData) {
         if (workFormData.company === "") {
             AppUtils.showToast("派工单位不能为空");
@@ -465,10 +441,8 @@ class CreateWorkForm extends React.Component {
             return false;
         }
         if (this.formModel === 'CreateModel') {
-            var planreturntime = workFormData.planreturntime;
-            var planreturntimestamp = Date.parse(new Date(planreturntime)) / 1000 / 60;
-            var createtimestamp = Date.parse(new Date(workFormData.creationtime)) / 1000 / 60;
-            if (planreturntimestamp <= createtimestamp) {
+            let pass = AppUtilscompareDate(workFormData.creationtime, workFormData.planreturntime)
+            if (!pass) {
                 AppUtils.showToast("计划返回时间不能早于派工时间");
                 return false;
             }
@@ -477,9 +451,8 @@ class CreateWorkForm extends React.Component {
         if (this.formModel === "EditModel") {
             var returntime = workFormData.returntime;
             if (returntime !== "") {
-                var returntimestamp = Date.parse(new Date(returntime)) / 1000 / 60;
-                var createtimestamp = Date.parse(new Date(workFormData.creationtime)) / 1000 / 60;
-                if (returntimestamp <= createtimestamp) {
+                let pass = AppUtils.compareDate(workFormData.creationtime, returntime);
+                if (!pass) {
                     AppUtils.showToast("返回时间不能早于派工时间");
                     return false;
                 }
@@ -501,13 +474,18 @@ class CreateWorkForm extends React.Component {
 
     _handleDatePicked = (date) => {
         let newDate = moment(date).format("YYYY-MM-DD HH:mm");
-        let newState = {};
-        newState[this.selectedItem] = newDate;
-
-        this._updateFormModel(this.selectedItem, newDate);
-        this._hideDateTimePicker();
-
-        this.setState(newState)
+        let creationTime = this.state.creationtime;
+        let pass = AppUtils.compareDate(creationTime, newDate);
+        if (pass) {
+            let newState = {};
+            newState[this.selectedItem] = newDate;
+            this._updateFormModel(this.selectedItem, newDate);
+            this._hideDateTimePicker();
+            this.setState(newState)
+        } else {
+            this._hideDateTimePicker();
+            AppUtils.showToast("所选时间不能早于派工时间");
+        }
     };
     _selectImagesToUpload = () => {
         const options = {

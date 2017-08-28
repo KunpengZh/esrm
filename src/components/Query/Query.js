@@ -244,10 +244,10 @@ class Query extends React.Component {
             return false;
         }
         if (this.state.creationtime1 !== "") {
-            let date1 = Date.parse(new Date(this.state.creationtime1)) / 1000 / 60;
-            let date2 = Date.parse(new Date(this.state.creationtime2)) / 1000 / 60;
+            // let date1 = Date.parse(new Date(this.state.creationtime1));
+            // let date2 = Date.parse(new Date(this.state.creationtime2));
 
-            if (date2 <= date1) {
+            if (AppUtils.compareDate(this.state.creationtime1,this.state.creationtime2)) {
                 AppUtils.showToast("第二个日期不能早于第一个日期");
                 return false;
             }
@@ -262,10 +262,10 @@ class Query extends React.Component {
             return false;
         }
         if (this.state.returntime1 !== "") {
-            let date1 = Date.parse(new Date(this.state.returntime1)) / 1000 / 60;
-            let date2 = Date.parse(new Date(this.state.returntime2)) / 1000 / 60;
+            // let date1 = Date.parse(new Date(this.state.returntime1));
+            // let date2 = Date.parse(new Date(this.state.returntime2));
 
-            if (date2 <= date1) {
+            if (AppUtils.compareDate(this.state.returntime1,this.state.returntime2)) {
                 AppUtils.showToast("第二个日期不能早于第一个日期");
                 return false;
             }

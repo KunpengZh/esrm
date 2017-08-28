@@ -18,6 +18,16 @@ import WorkFormImageView from '../WorkForm/WorkFormImageView'
 
 const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime', 'workers', 'workersnumber', 'workCategory'
     , 'workitem', 'workhour', 'perhourwage', 'requestwage', 'planreturntime', 'returntime', 'isSecurityTools', 'securityTools', 'isSpareParts', 'spareParts', 'sanPiaoZhiXing', 'worklocation', 'workcomments'];
+const ReadOnlyModel = {
+    'adminSelectable': [],
+    'editable': [],
+    'selectable': [],
+    'numberonly': [],
+    'multiSelectable': [],
+    'multiText': ['securityTools', 'spareParts', 'workers'],
+    'dateTime': []
+}
+
 
 
 class WorkFormItem extends React.Component {
@@ -28,12 +38,24 @@ class WorkFormItem extends React.Component {
         }
     }
     render() {
-        return (
-            <View style={styles.row} >
-                <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
-                <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
-            </View>
-        )
+        let curModel = ReadOnlyModel;
+        if (curModel.multiText.indexOf(this.props.data.category) >= 0) {
+            let value = AppUtils.ArrayToString(this.props.data.data);
+            return (
+                <View style={styles.row} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{value}</Text>
+                </View>
+            )
+        } else {
+            return (
+                <View style={styles.row} >
+                    <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
+                    <Text style={styles.WFItemContent}>{this.props.data.data}</Text>
+                </View>
+            )
+        }
+
     }
 }
 

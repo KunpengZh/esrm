@@ -1,5 +1,6 @@
 import CookieManager from "react-native-cookies";
 import Toast from 'react-native-root-toast';
+import moment from 'moment';
 
 var AppUtils = (function () {
     /**
@@ -554,9 +555,25 @@ var AppUtils = (function () {
     }
 
     /**
+     * The functions to compare 2 date
+     */
+    var compareDate=function(date1,date2){
+        let daveValue1 = moment(date1).valueOf();
+        let dateValue2 = moment(date2).valueOf();
+        console.log(daveValue1);
+        console.log(dateValue2);
+        if (dateValue2 <= daveValue1) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    /**
      * Return the object will be export from App Utils
      */
     return {
+        compareDate:compareDate,
         getTabNavigation:getTabNavigation,
         setTabNavigation:setTabNavigation,
         getFromAppStore: getFromAppStore,

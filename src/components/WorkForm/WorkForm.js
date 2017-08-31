@@ -15,6 +15,7 @@ import CreateUrgentWorkForm from './CreateUrgentWorkForm'
 import AppUtils from '../../Share/AppUtils'
 import WorkFformList from './WorkFormList'
 import FullScreenLoading from '../ShareComments/FullScreenLoading';
+import JPushModule from 'jpush-react-native';
 
 
 class WorkFormHome extends React.Component {
@@ -26,16 +27,59 @@ class WorkFormHome extends React.Component {
         }
 
     }
+    setJPushAlias = () => {
+        JPushModule.setAlias(AppUtils.getUserProfile().username, function (me) {
+            console.log("set alias successed");
+            AppUtils.clenNotifications();
+            AppUtils.checkOfflineNotifications();
+        }, function (err) {
+            console.log("failed set alias");
+            console.log(err);
+        })
+    }
     componentDidMount() {
+
+        JPushModule.notifyJSDidLoad((resultCode) => {
+            if (resultCode === 0) {
+            }
+        });
+        // JPushModule.addReceiveCustomMsgListener((map) => {
+        //     // console.log("addReceiveCustomMsgListener");
+        // 	// console.log("extras: " + map.extras);
+        // });
+        JPushModule.addReceiveNotificationListener((map) => {
+            // console.log("addReceiveNotificationListener");
+            // console.log("alertContent: " + map.alertContent);
+            // console.log("extras: " + map.extras);
+            let extra = JSON.parse(map.extras);
+            let messages = extra.messages;
+            AppUtils.addPUshNotifications(messages)
+
+        });
+        JPushModule.addReceiveOpenNotificationListener((map) => {
+            // console.log("addReceiveOpenNotificationListener");
+            // console.log("Opening notification!");
+            // console.log("map.extra: " + map.extras);
+            this.props.navigation.navigate("Conf");
+        });
+        // JPushModule.addGetRegistrationIdListener((registrationId) => {
+        //     console.log("addGetRegistrationIdListener");
+        // 	console.log("Device register succeed, registrationId " + registrationId);
+        // });
         AppUtils.isUserLoggedIn().then((isUserLoggedIn) => {
             if (isUserLoggedIn) {
+                this.setJPushAlias();
                 this._reLoadingWorkFormList();
             } else {
                 this.setState({ showFullScreenLoading: false });
-                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false, callback: this._reLoadingWorkFormList })
+                AppUtils.getRootNavigation().navigate('Login', { isMainLogin: false, callback: this._reInitialateWorkForm })
             }
         })
         AppUtils.setTabNavigation('WorkForm', this);
+    }
+    _reInitialateWorkForm = () => {
+        this.setJPushAlias();
+        this._reLoadingWorkFormList();
     }
     _updateWorkFormList = (newData) => {
         let WorkFormList = this.state.workFormsList;

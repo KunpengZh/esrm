@@ -13,7 +13,13 @@ import com.facebook.soloader.SoLoader;
 import java.util.Arrays;
 import java.util.List;
 
+import cn.jpush.reactnativejpush.JPushPackage;
+
 public class MainApplication extends Application implements ReactApplication {
+
+   //加入 JPushPackage
+  private boolean SHUTDOWN_TOAST = true;
+  private boolean SHUTDOWN_LOG = false;
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -25,9 +31,11 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
-            new VectorIconsPackage(),
-            new ImagePickerPackage(),
-          new CookieManagerPackage()
+          new VectorIconsPackage(),
+          new ImagePickerPackage(),
+          new CookieManagerPackage(),
+          //加入 JPushPackage
+          new JPushPackage(SHUTDOWN_TOAST, SHUTDOWN_LOG)
       );
     }
   };

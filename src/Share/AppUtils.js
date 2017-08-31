@@ -7,8 +7,8 @@ var AppUtils = (function () {
      * Define the Server URL
      * This can be changed from the Settings function
      */
-    var appServerURL = "http://120.77.170.133/"
-    //var appServerURL = "http://192.168.0.100/"
+    //var appServerURL = "http://120.77.170.133/"
+    var appServerURL = "http://192.168.0.102/"
 
     /**
      * Define a variable to keep the root navigation
@@ -557,7 +557,7 @@ var AppUtils = (function () {
     /**
      * The functions to compare 2 date
      */
-    var compareDate=function(date1,date2){
+    var compareDate = function (date1, date2) {
         let daveValue1 = moment(date1).valueOf();
         let dateValue2 = moment(date2).valueOf();
         console.log(daveValue1);
@@ -570,12 +570,47 @@ var AppUtils = (function () {
     }
 
     /**
+     * Functions to templaory store push notifications from Server
+     */
+    var pushNotifications = [];
+    var getPushNotifications = function () {
+        return pushNotifications;
+    }
+    var addPUshNotifications = function (message) {
+        let timeLabel = moment().format("YYYY-MM-DD HH:mm");
+        pushNotifications.push({
+            timeLabel: timeLabel,
+            data: message
+        });
+    }
+    var clenNotifications = function () {
+        pushNotifications = [];
+    }
+
+    /**
+     * Functions to trigger offline message notifications
+     */
+
+    var checkOfflineNotifications = function () {
+        fetch(appServerURL + 'login/notifications')
+            .then((response) => response.json()).then((jsonRes) => {
+                console.log(jsonRes);
+            }).catch((err) => {
+                showToast(err);
+            })
+    }
+
+    /**
      * Return the object will be export from App Utils
      */
     return {
-        compareDate:compareDate,
-        getTabNavigation:getTabNavigation,
-        setTabNavigation:setTabNavigation,
+        clenNotifications:clenNotifications,
+        checkOfflineNotifications: checkOfflineNotifications,
+        getPushNotifications: getPushNotifications,
+        addPUshNotifications: addPUshNotifications,
+        compareDate: compareDate,
+        getTabNavigation: getTabNavigation,
+        setTabNavigation: setTabNavigation,
         getFromAppStore: getFromAppStore,
         setToAppStore: setToAppStore,
         getUserProfile: getUserProfile,

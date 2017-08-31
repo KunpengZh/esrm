@@ -124,6 +124,9 @@ export default class ItemSelection extends React.Component {
             case 'workers':
                 itemSource = 'companyEmployee'
                 break;
+            case 'chargerName':
+                itemSource = 'companyEmployee'
+                break;
         }
 
         if (itemSource === '') {

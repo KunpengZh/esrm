@@ -19,9 +19,10 @@ export default class ConfigView extends React.Component {
         };
     };
     componentWillReceiveProps(newProps) {
-        console.log(newProps);
+        
     }
     render() {
+
         let blocks = [];
         let key = 2000;
         this.props.navigation.state.params.data.forEach(function (element) {
@@ -41,7 +42,7 @@ class BlockMsg extends React.Component {
         let rows = [];
         let lKey = 1000;
         this.props.data.forEach(function (element) {
-            console.log(element);
+            
             rows.push(
                 <Text key={'R' + (lKey++)}>{element}</Text>
             )

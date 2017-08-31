@@ -51,6 +51,7 @@ class WorkFormHome extends React.Component {
             // console.log("addReceiveNotificationListener");
             // console.log("alertContent: " + map.alertContent);
             // console.log("extras: " + map.extras);
+            
             let extra = JSON.parse(map.extras);
             let messages = extra.messages;
             AppUtils.addPUshNotifications(messages)
@@ -60,6 +61,7 @@ class WorkFormHome extends React.Component {
             // console.log("addReceiveOpenNotificationListener");
             // console.log("Opening notification!");
             // console.log("map.extra: " + map.extras);
+           
             this.props.navigation.navigate("Conf");
         });
         // JPushModule.addGetRegistrationIdListener((registrationId) => {
@@ -152,6 +154,8 @@ class WorkFormHome extends React.Component {
             isSpareParts: "",
             isSecurityTools: "",
             sanPiaoZhiXing: "",
+            chargerName: "",
+            chargerID: ""
         };
         this.setState({ showFullScreenLoading: true });
         AppUtils.newWFRequestId().then((res) => {
@@ -160,6 +164,7 @@ class WorkFormHome extends React.Component {
                 data.requestId = res.data.requestId;
                 data.creationtime = res.data.creationtime
                 data.company = AppUtils.getUserProfile().company;
+                data.requester = AppUtils.getUserProfile().fullname;
                 this.props.navigation.navigate('CreateWorkForm', {
                     workFormData: data,
                     formModel: 'CreateModel',
@@ -181,15 +186,23 @@ class WorkFormHome extends React.Component {
         })
     }
     render() {
+        let isAdmin = AppUtils.getUserProfile().isAdmin || AppUtils.getUserProfile().isAdminOffice || AppUtils.getUserProfile().isCompanyAdmin;
         return (
             <View style={styles.container}>
                 <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 <Text style={styles.funLabel}>创建新的派工单</Text>
                 <View style={styles.topContainer} >
-                    <TouchableOpacity onPress={this._createNewWorkForm}>
-                        <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />
-                        <Text>新建派工</Text>
-                    </TouchableOpacity>
+                    {isAdmin ? (
+                        <TouchableOpacity onPress={this._createNewWorkForm}>
+                            <Image style={styles.actionLogo} source={require('../../images/icon_create.png')} />
+                            <Text>新建派工</Text>
+                        </TouchableOpacity>
+                    ) : (
+                            <View>
+                                <Image style={styles.actionLogo} source={require('../../images/icon_create1.png')} />
+                                <Text>新建派工</Text>
+                            </View>
+                        )}
                     <TouchableOpacity onPress={this._reLoadingWorkFormList}>
                         <Image style={styles.actionLogo} source={require('../../images/refresh.png')} />
                         <Text>刷新列表</Text>

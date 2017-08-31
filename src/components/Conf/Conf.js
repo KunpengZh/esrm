@@ -32,7 +32,7 @@ class ConfigView extends React.Component {
         })
     }
     componentWillReceiveProps(newProps) {
-        console.log(newProps);
+        
     }
     showNotifications = () => {
         this.props.navigation.navigate('ShowPushNotifications', {
@@ -40,7 +40,7 @@ class ConfigView extends React.Component {
         })
     }
     render() {
-        console.log("render conf");
+        
         return (
             <View>
                 <Text style={styles.funLabel}>退出当前用户登陆</Text>

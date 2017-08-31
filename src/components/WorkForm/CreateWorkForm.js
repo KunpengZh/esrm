@@ -21,8 +21,9 @@ import WorkFormImageView from './WorkFormImageView'
 
 
 
-const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime', 'workers', 'workhour', 'planreturntime', 'workCategory'
-    , 'workitem', 'workersnumber', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'worklocation', 'returntime', 'workcomments'];
+const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime', 'chargerName', 'workers', 'workhour', 'planreturntime', 'workCategory'
+    , 'workitem', 'workersnumber', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts',
+    'worklocation', 'returntime', 'workcomments'];
 
 const EditModel = {
     'adminSelectable': [],
@@ -34,9 +35,9 @@ const EditModel = {
     'dateTime': ['returntime']
 };
 const CreateModel = {
-    'adminSelectable': ['company'],
+    'adminSelectable': ['company', 'requester'],
     'editable': ['worklocation', 'workcomments'],
-    'selectable': ['requester', 'workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing'],
+    'selectable': ['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'chargerName'],
     'multiSelectable': ['securityTools', 'spareParts', 'workers'],
     'numberonly': [],
     'multiText': [],
@@ -133,7 +134,7 @@ class WorkFormItem extends React.Component {
                 </View>
             )
         } else if (curModel.adminSelectable.indexOf(this.props.data.category) >= 0) {
-            if (AppUtils.getUserProfile().isAdmin) {
+            if (AppUtils.getUserProfile().isAdmin || AppUtils.getUserProfile().isAdminOffice) {
                 return (
                     <TouchableOpacity style={styles.row} onPress={this._onPress} >
                         <Text style={styles.WFItemLabel}>{this.props.data.label}</Text>
@@ -204,6 +205,31 @@ class CreateWorkForm extends React.Component {
                     <FontAwesome name="arrow-circle-left" style={styles.headericon} />
                 </TouchableOpacity>
             };
+        } else if (navigation.state.params.formModel === 'EditModel') {
+            let isChargedPerson = false;
+            if (navigation.state.params.workFormData.chargerID) {
+                isChargedPerson = (navigation.state.params.workFormData.chargerID === AppUtils.getUserProfile().username ? true : false);
+            } else {
+                isChargedPerson = true;
+            }
+
+            if (isChargedPerson) {
+                return {
+                    headerRight: <TouchableOpacity onPress={() => params.handleSave()}>
+                        <FontAwesome name="save" style={styles.headericon} />
+                    </TouchableOpacity>,
+                    headerLeft: <TouchableOpacity onPress={() => params.goBack(null)}>
+                        <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                    </TouchableOpacity>
+                };
+            } else {
+                return {
+                    headerLeft: <TouchableOpacity onPress={() => params.goBack(null)}>
+                        <FontAwesome name="arrow-circle-left" style={styles.headericon} />
+                    </TouchableOpacity>
+                };
+            }
+
         } else {
             return {
                 headerRight: <TouchableOpacity onPress={() => params.handleSave()}>
@@ -227,13 +253,12 @@ class CreateWorkForm extends React.Component {
     }
     _onPress = (category) => {
 
-        //['workCategory', 'workitem', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts', 'workers'],
         let filterValue = '';
         let filterFieldName = '';
         let filterable = false;
         let multiable = false;
 
-        if (category === 'requester') {
+        if (category === 'requester' || category === 'chargerName') {
             if (this.state.company === "") {
                 AppUtils.showToast("请先选择工作单位");
                 return;
@@ -243,6 +268,7 @@ class CreateWorkForm extends React.Component {
                 filterable = true;
             }
         }
+
 
         if (category === 'workers') {
             if (this.state.company === "") {
@@ -296,30 +322,50 @@ class CreateWorkForm extends React.Component {
     }
     onSelect = (data) => {
         let nObj = {};
-        if (data.category === 'workCategory' && data.value != this.state.workCategory) {
-            nObj.workitem = '';
-        }
-        if (data.category === 'isSecurityTools' && data.value != this.state.isSecurityTools) {
-            nObj.securityTools = '';
-        }
-        if (data.category === 'isSpareParts' && data.value != this.state.isSpareParts) {
-            nObj.spareParts = '';
-        }
+        if (data.category === 'chargerName' && data.value !== this.state.chargerName) {
+            let condition = {
+                "fullname": data.value,
+                "company": this.state.company,
+            };
+            AppUtils.validateChargePerson(condition).then((res) => {
+                if (res.status === 800) {
+                    AppUtils.showToast('你所选的工单主负责人，没有一个有效的登陆ID,所以不能做为主负责人，请更换');
 
-        if (data.category === 'company' && data.value != this.state.company) {
-            nObj.requester = '';
-            nObj.workers = [];
+                } else if (res.status === 500) {
+                    AppUtils.showToast(res.message);
+                } else if (res.status === 200) {
+                    nObj.chargerID = res.data.username;
+                    nObj.chargerName = data.value;
+                    this.setState(nObj);
+                }
+            })
+        } else {
+            if (data.category === 'workCategory' && data.value != this.state.workCategory) {
+                nObj.workitem = '';
+            }
+            if (data.category === 'isSecurityTools' && data.value != this.state.isSecurityTools) {
+                nObj.securityTools = '';
+
+            }
+            if (data.category === 'isSpareParts' && data.value != this.state.isSpareParts) {
+                nObj.spareParts = '';
+            }
+
+            if (data.category === 'company' && data.value != this.state.company) {
+                nObj.requester = '';
+                nObj.workers = [];
+            }
+            /**
+             * To update the worknumbers
+             */
+            if (data.category === 'workers') {
+                nObj.workersnumber = data.value.length;
+            }
+            nObj[data.category] = data.value;
+            this.setState(nObj);
         }
-
-        nObj[data.category] = data.value;
-
-        /**
-         * To update the worknumbers
-         */
-        if (data.category === 'workers') {
-            nObj.workersnumber = data.value.length;
-        }
-
+    }
+    _updateFormStatus = (nObj) => {
         this.setState(nObj);
     }
     _updateFormModel = (key, value) => {
@@ -410,7 +456,7 @@ class CreateWorkForm extends React.Component {
             AppUtils.showToast(err);
         })
     }
-    
+
     validateWorkForm(workFormData) {
         if (workFormData.company === "") {
             AppUtils.showToast("派工单位不能为空");
@@ -441,7 +487,7 @@ class CreateWorkForm extends React.Component {
             return false;
         }
         if (this.formModel === 'CreateModel') {
-            let pass = AppUtilscompareDate(workFormData.creationtime, workFormData.planreturntime)
+            let pass = AppUtils.compareDate(workFormData.creationtime, workFormData.planreturntime)
             if (!pass) {
                 AppUtils.showToast("计划返回时间不能早于派工时间");
                 return false;
@@ -540,6 +586,14 @@ class CreateWorkForm extends React.Component {
         });
     }
     render() {
+        let isChargedPerson = false;
+        if (this.state.chargerID) {
+            isChargedPerson = (this.state.chargerID === AppUtils.getUserProfile().username ? true : false);
+        } else {
+            isChargedPerson = true;
+        }
+        if (this.formModel === 'EditModel' && !isChargedPerson) this.formModel = "ReadOnlyModel";
+
         let self = this;
         const WorkFormLabel = AppUtils.WorkFormLabel;
         var items = [];
@@ -560,7 +614,7 @@ class CreateWorkForm extends React.Component {
             <ScrollView contentContainerStyle={styles.container}>
                 <FullScreenLoading showLoading={this.state.showFullScreenLoading} />
                 {items}
-                {this.formModel === 'EditModel' ? (
+                {this.formModel === 'EditModel' && isChargedPerson ? (
                     <View style={styles.ButtonContainer}>
                         <TouchableOpacity onPress={this._completeRequestForm.bind(this)} style={styles.actionButtonContainer}>
                             <Text style={styles.actionButtonText}>完成工单</Text>

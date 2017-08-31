@@ -55,8 +55,8 @@ class WorkForm extends React.Component {
                     <View style={styles.WFItemRow}>
                         <Text style={styles.WFItemLabel}>派工人员:</Text>
                         <Text style={styles.WFItemContent}>{this.props.data.requester}</Text>
-                        <Text style={styles.WFItemLabel}>工作类别:</Text>
-                        <Text style={styles.WFItemContent}>{this.props.data.workCategory}</Text>
+                        <Text style={styles.WFItemLabel}>负责人:</Text>
+                        <Text style={styles.WFItemContent}>{this.props.data.chargerName}</Text>
                     </View>
                     <View style={styles.WFItemRow}>
                         <Text style={styles.WFItemLabel}>派工时间:</Text>

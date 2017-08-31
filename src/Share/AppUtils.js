@@ -7,8 +7,8 @@ var AppUtils = (function () {
      * Define the Server URL
      * This can be changed from the Settings function
      */
-    //var appServerURL = "http://120.77.170.133/"
-    var appServerURL = "http://192.168.0.102/"
+    var appServerURL = "http://120.77.170.133/"
+    //var appServerURL = "http://192.168.0.102/"
 
     /**
      * Define a variable to keep the root navigation
@@ -51,7 +51,9 @@ var AppUtils = (function () {
         isAdmin: false,
         company: "",
         fullname: "",
-        isAuthenticated: false
+        isAuthenticated: false,
+        isAdminOffice: false,
+        isCompanyAdmin: false
     }
     var getUserProfile = function () {
         return appUser;
@@ -121,10 +123,12 @@ var AppUtils = (function () {
     var _updateUserProfile = function (responseJson) {
         appUser.username = responseJson.username;
         appUser.role = responseJson.role;
-        appUser.isAdmin = (responseJson.role === 'Admin' || responseJson.role === 'AdminOffice') ? true : false;
         appUser.company = responseJson.company;
         appUser.fullname = responseJson.fullname;
         appUser.isAuthenticated = true;
+        appUser.isAdmin = responseJson.role === "Admin" ? true : false;
+        appUser.isAdminOffice = responseJson.role === "AdminOffice" ? true : false;
+        appUser.isCompanyAdmin = responseJson.role === "CompanyAdmin" ? true : false;
     }
 
     var AppLogin = function (username, password) {
@@ -279,7 +283,9 @@ var AppUtils = (function () {
         'workitem': '工作内容:',
         'worklocation': '工作地点:',
         'requestwage': '总工额',
-        'perhourwage': '单位工额'
+        'perhourwage': '单位工额',
+        'chargerID': "负责人ID:",
+        'chargerName': "负责人:"
     }
 
     const workformDataModel = {
@@ -304,7 +310,9 @@ var AppUtils = (function () {
         "spareParts": "Mixed",
         "sanPiaoZhiXing": "String",
         "perhourwage": "Number",
-        "requestwage": "Number"
+        "requestwage": "Number",
+        "chargerName": "String",
+        "chargerID": "String"
     }
 
     /**
@@ -601,10 +609,43 @@ var AppUtils = (function () {
     }
 
     /**
+     * functions to make sure the seleted charge person have a id
+     */
+
+    var validateChargePerson = (condition) => {
+        return new Promise(function (resolve, reject) {
+            fetch(appServerURL + "esrvapi/queryuser", {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.89 Safari/537.36',
+                    'Host': 'esrm.xianxian.com'
+                },
+                body: JSON.stringify({
+                    condition: condition
+                })
+            }).then((response) => response.json()).then((res) => {
+
+                resolve(res)
+            }).catch((err) => {
+
+                console.log(err);
+                resolve({
+                    status: 500,
+                    message: err,
+                    data: ''
+                })
+            })
+        })
+    }
+
+    /**
      * Return the object will be export from App Utils
      */
     return {
-        clenNotifications:clenNotifications,
+        validateChargePerson: validateChargePerson,
+        clenNotifications: clenNotifications,
         checkOfflineNotifications: checkOfflineNotifications,
         getPushNotifications: getPushNotifications,
         addPUshNotifications: addPUshNotifications,

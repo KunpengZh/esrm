@@ -22,7 +22,7 @@ import WorkFormImageView from './WorkFormImageView'
 
 
 const WorkFormRenderItems = ['requestId', 'company', 'requester', 'creationtime', 'chargerName', 'workers', 'workhour', 'planreturntime', 'workCategory'
-    , 'workitem', 'workersnumber', 'isSecurityTools', 'isSpareParts', 'sanPiaoZhiXing', 'securityTools', 'spareParts',
+    , 'workitem', 'workersnumber', 'isSecurityTools', 'securityTools', 'isSpareParts', 'spareParts','sanPiaoZhiXing', 
     'worklocation', 'returntime', 'workcomments'];
 
 const EditModel = {

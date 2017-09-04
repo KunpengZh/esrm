@@ -155,6 +155,17 @@ export default class ItemSelection extends React.Component {
                 }
             }
 
+            if (itemName === 'chargerName') {
+                let newDataSource = [];
+                for (let i = 0; i < dataSource.length; i++) {
+                    if (dataSource[i].isCharger === "Yes") {
+                        newDataSource.push(dataSource[i]);
+                    }
+                }
+                dataSource = newDataSource;
+            }
+
+
             if (this.props.navigation.state.params.toAddAll) {
                 dataSource.push({
                     name: 'All',
